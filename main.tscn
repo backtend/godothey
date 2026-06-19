@@ -1,17 +1,11 @@
 [gd_scene format=3 uid="uid://b2e5g0ixxl0fv"]
 
-[node name="Control" type="Control" unique_id=1654398095]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[ext_resource type="Texture2D" uid="uid://cvtllpyd13kos" path="res://icon.svg" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://24fvjgoiwgld" path="res://sprite_2d.gd" id="2_0xm2m"]
 
-[node name="Label" type="Label" parent="." unique_id=110531886]
-layout_mode = 0
-offset_left = 148.0
-offset_top = 157.0
-offset_right = 700.0
-offset_bottom = 270.0
-theme_override_font_sizes/font_size = 80
-text = "Hello Android!"
-horizontal_alignment = 1
+[node name="Node2D" type="Node2D" unique_id=2054691334]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1070978431]
+position = Vector2(142, 94)
+texture = ExtResource("1_ig7tw")
+script = ExtResource("2_0xm2m")
