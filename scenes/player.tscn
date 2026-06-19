@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://dum7mxc4e5ct2"]
+
+[ext_resource type="Texture2D" uid="uid://ctm7ddsa2bunl" path="res://assets/Player/Player.png" id="1_3vyb7"]
+
+[sub_resource type="Animation" id="Animation_3vyb7"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_g2els"]
+resource_name = "idle_down"
+length = 0.5
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.13333334, 0.23333333, 0.3, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [1, 2, 3, 4, 5, 1]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_qhqgy"]
+_data = {
+&"RESET": SubResource("Animation_3vyb7"),
+&"idle_down": SubResource("Animation_g2els")
+}
+
+[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1037054095]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=669000048]
+position = Vector2(806, 672)
+scale = Vector2(11.984422, 11.984422)
+texture = ExtResource("1_3vyb7")
+hframes = 6
+vframes = 10
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1284351824]
+libraries/ = SubResource("AnimationLibrary_qhqgy")
+autoplay = &"idle_down"

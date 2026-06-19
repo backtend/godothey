@@ -1,11 +1,21 @@
 [gd_scene format=3 uid="uid://b2e5g0ixxl0fv"]
 
 [ext_resource type="Texture2D" uid="uid://cvtllpyd13kos" path="res://icon.svg" id="1_ig7tw"]
-[ext_resource type="Script" uid="uid://24fvjgoiwgld" path="res://sprite_2d.gd" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://24fvjgoiwgld" path="res://scripts/player.gd" id="2_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://jhqiqjka0y2i" path="res://scenes/playerGirl.tscn" id="3_h2yge"]
+[ext_resource type="PackedScene" uid="uid://dum7mxc4e5ct2" path="res://scenes/player.tscn" id="4_1bvp3"]
 
 [node name="Node2D" type="Node2D" unique_id=2054691334]
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1070978431]
-position = Vector2(142, 94)
+[node name="PlayerGD" type="Sprite2D" parent="." unique_id=1070978431]
+position = Vector2(203, 275)
 texture = ExtResource("1_ig7tw")
 script = ExtResource("2_0xm2m")
+
+[node name="PlayerGirl" parent="." unique_id=780432313 instance=ExtResource("3_h2yge")]
+position = Vector2(805.00006, 306.00003)
+scale = Vector2(2.150243, 2.150243)
+
+[node name="CharacterBody2D" parent="." unique_id=1037054095 instance=ExtResource("4_1bvp3")]
+position = Vector2(-291, 51)
+scale = Vector2(1.0007147, 1)

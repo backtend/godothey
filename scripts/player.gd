@@ -15,3 +15,4 @@ func _process(delta: float) -> void:
 	var moveX: float = Input.get_action_strength("right") - Input.get_action_strength("left")
 	print(	"X轴的值是-value: " , moveX)
 	position.x += moveX
+	
