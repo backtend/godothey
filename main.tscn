@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://b2e5g0ixxl0fv"]
+
+[node name="Control" type="Control" unique_id=1654398095]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="." unique_id=110531886]
+layout_mode = 0
+offset_left = 148.0
+offset_top = 157.0
+offset_right = 700.0
+offset_bottom = 270.0
+theme_override_font_sizes/font_size = 80
+text = "Hello Android!"
+horizontal_alignment = 1
