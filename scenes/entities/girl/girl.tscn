@@ -39,7 +39,7 @@ _data = {
 &"girlmove": SubResource("Animation_g2els")
 }
 
-[node name="Player" type="CharacterBody2D" unique_id=780432313]
+[node name="Girl" type="CharacterBody2D" unique_id=780432313]
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=343353567]
 texture = ExtResource("1_3vyb7")

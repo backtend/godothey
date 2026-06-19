@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://dum7mxc4e5ct2"]
 
 [ext_resource type="Texture2D" uid="uid://ctm7ddsa2bunl" path="res://assets/Player/Player.png" id="1_3vyb7"]
+[ext_resource type="Script" uid="uid://dl4xvs2r8gsjd" path="res://scenes/entities/player/scripts/player.gd" id="1_635qg"]
 
 [sub_resource type="Animation" id="Animation_3vyb7"]
 length = 0.001
@@ -40,11 +41,12 @@ _data = {
 &"idle_down": SubResource("Animation_g2els")
 }
 
-[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1037054095]
+[node name="Player" type="CharacterBody2D" unique_id=1037054095]
+script = ExtResource("1_635qg")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=669000048]
 position = Vector2(806, 672)
-scale = Vector2(11.984422, 11.984422)
+scale = Vector2(4.3944874, 4.3944874)
 texture = ExtResource("1_3vyb7")
 hframes = 6
 vframes = 10
