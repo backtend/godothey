@@ -23,3 +23,6 @@ load()                         运行时加载资源
 await                           等待信号或协程
 emit_signal()                  发送信号
 connect()                      连接信号
+
+
+正确的godot-tools路径是：/Applications/Godot.app/Contents/MacOS/Godot
