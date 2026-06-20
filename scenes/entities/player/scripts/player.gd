@@ -6,6 +6,9 @@ extends CharacterBody2D
 # 当前输入得到的移动方向向量
 var moveDirection: Vector2 = Vector2.ZERO
 var playerDirection: Vector2 = Vector2.DOWN
+var attackDuration: float = 0.3
+var attackTimer: float = 0.0
+var isAttacking: bool = false
 
 # 动画播放器引用
 @onready var animationPlayer: AnimationPlayer = $AnimationPlayer
@@ -23,12 +26,26 @@ func _physics_process(delta: float) -> void:
 	velocity = moveDirection * speed
 	move_and_slide()
 
+
+	if !isAttacking and Input.is_action_just_pressed("attack"):
+		velocity = Vector2.ZERO # 攻击时停止移动
+		isAttacking = true
+		attackTimer = 0
+		print_debug("攻击方向：" + get_animation_direction())
+		animationPlayer.play("attack_" + get_animation_direction())
+
+	if isAttacking:
+		attackTimer += delta
+		if attackTimer >= attackDuration:
+			attackTimer = 0.0
+			isAttacking = false
+		return # 直接退出
+
+
 	_update_direction_and_animation()
 
 
-
 func _update_direction_and_animation() -> void:
-
 	# 根据输入方向播放对应行走动画
 	if moveDirection != Vector2.ZERO:
 		var newDirection: Vector2
@@ -57,7 +74,6 @@ func _update_direction_and_animation() -> void:
 	#	# 无输入时默认待机朝下
 	#	animationPlayer.play("idle_down")
 
-
 	#更新动画
 	update_animation()
 
@@ -65,7 +81,7 @@ func _update_direction_and_animation() -> void:
 func update_animation() -> void:
 	var currentState = "walk" if moveDirection != Vector2.ZERO else "idle"
 	var direction: String = get_animation_direction()
-	var animationName:String = currentState + "_" + direction
+	var animationName: String = currentState + "_" + direction
 
 	if animationPlayer.has_animation(animationName):
 		animationPlayer.play(animationName)
