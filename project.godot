@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="HelloWorld"
+config/name="GODOTHEY"
 run/main_scene="uid://b2e5g0ixxl0fv"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
