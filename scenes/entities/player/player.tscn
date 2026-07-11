@@ -187,10 +187,9 @@ _data = {
 
 [node name="Player" type="CharacterBody2D" unique_id=1037054095]
 script = ExtResource("1_635qg")
-speed = null
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=669000048]
-position = Vector2(806, 672)
+position = Vector2(160.00002, 165)
 scale = Vector2(9.617806, 9.617806)
 texture = ExtResource("1_3vyb7")
 hframes = 6

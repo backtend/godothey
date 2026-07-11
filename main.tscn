@@ -18,5 +18,5 @@ position = Vector2(805.00006, 306.00003)
 scale = Vector2(1.0889488, 1.0889488)
 
 [node name="player" parent="." unique_id=1037054095 instance=ExtResource("4_1bvp3")]
-position = Vector2(-291, 51)
+position = Vector2(279, 424)
 scale = Vector2(1.0007147, 1)
