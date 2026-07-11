@@ -11,8 +11,8 @@ keytool -genkeypair \
 keytool -list -v -keystore godothey.keystore
 
 
-godot --headless --export-release "AndroidHello" docs/releases/godothey.apk
 godot --headless --export-debug "AndroidHello" docs/releases/godothey.apk
+godot --headless --export-release "AndroidHello" docs/releases/godothey.apk
 
 
 
