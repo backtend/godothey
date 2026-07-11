@@ -1,22 +1,6 @@
 [gd_scene format=3 uid="uid://b2e5g0ixxl0fv"]
 
-[ext_resource type="Texture2D" uid="uid://cvtllpyd13kos" path="res://icon.svg" id="1_ig7tw"]
-[ext_resource type="Script" uid="uid://24fvjgoiwgld" path="res://scripts/goboy.gd" id="2_0xm2m"]
-[ext_resource type="PackedScene" uid="uid://jhqiqjka0y2i" path="res://scenes/entities/girl/girl.tscn" id="3_h2yge"]
-[ext_resource type="PackedScene" uid="uid://dum7mxc4e5ct2" path="res://scenes/entities/player/player.tscn" id="4_1bvp3"]
+[ext_resource type="Script" uid="uid://cq7ca1d2g4k4t" path="res://scripts/main/main.gd" id="1_ig7tw"]
 
-[node name="Node2D" type="Node2D" unique_id=2054691334]
-
-[node name="gdboy" type="Sprite2D" parent="." unique_id=1070978431]
-visible = false
-position = Vector2(203, 275)
-texture = ExtResource("1_ig7tw")
-script = ExtResource("2_0xm2m")
-
-[node name="girl" parent="." unique_id=780432313 instance=ExtResource("3_h2yge")]
-position = Vector2(805.00006, 306.00003)
-scale = Vector2(1.0889488, 1.0889488)
-
-[node name="player" parent="." unique_id=1037054095 instance=ExtResource("4_1bvp3")]
-position = Vector2(279, 424)
-scale = Vector2(1.0007147, 1)
+[node name="Node" type="Node" unique_id=1256974477]
+script = ExtResource("1_ig7tw")
