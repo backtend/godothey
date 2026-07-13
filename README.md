@@ -16,6 +16,7 @@ godot --headless --export-release "AndroidHello" docs/releases/godothey.apk
 
 
 
+### 常用函数
 
 _ready()                节点和子节点全部加载完成后执行一次；初始化变量、获取节点、连接信号、设置初始状态
 _enter_tree()           节点进入场景树时执行（比_ready更早）；注册管理器、提前初始化
