@@ -1,16 +1,21 @@
 ## HELLO GODOT
 
+正确的godot-tools路径是：/Applications/Godot.app/Contents/MacOS/Godot
+
+
+## 产生签名
 keytool -genkeypair \
 -alias godothey \
 -keyalg RSA \
 -keysize 2048 \
 -validity 10000 \
 -keystore godothey.keystore
-187-x2
+证书密码：187-x2
 
 keytool -list -v -keystore godothey.keystore
 
 
+### 打包命令
 godot --headless --export-debug "AndroidHello" docs/releases/godothey.apk
 godot --headless --export-release "AndroidHello" docs/releases/godothey.apk
 
@@ -43,4 +48,20 @@ emit_signal()                  发送信号
 connect()                      连接信号
 
 
-正确的godot-tools路径是：/Applications/Godot.app/Contents/MacOS/Godot
+
+
+
+
+# 自动升级 RSA签名
+```
+<!-- # 生成RSA私钥（2048位，密码可选，这里设置为空密码，方便脚本调用） -->
+<!-- # 生成的私钥文件：private_key.pem -->
+openssl genrsa -out private_key.pem 2048
+
+<!-- # 从私钥导出公钥（供客户端验签使用） -->
+<!-- # 生成的公钥文件：public_key.pem -->
+openssl rsa -in private_key.pem -pubout -out public_key.pem
+
+私钥用来签名，记得一定要把公钥放在这个文件变量中！！！！ app/src/main/java/com/yongit/box/service/UpgradeService.kt
+```
+

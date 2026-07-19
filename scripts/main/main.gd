@@ -1,6 +1,7 @@
 extends Node
 
 func _ready() -> void:
+	await get_tree().create_timer(2.0).timeout
 	Auth.check_login_success.connect(_go_main)
 	Auth.check_login_failed.connect(_go_login)
 	if Auth.has_token():
