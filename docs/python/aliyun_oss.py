@@ -5,7 +5,7 @@ from urllib.parse import quote
 import base64
 from email.utils import formatdate
 
-# 替换为你的参数 
+# 替换为你的参数 LTAI5t5bTvMz5HyN34px6G68=KIb6xcnxCbnhMCsYF3bLGOGvcn6Zi8
 access_key_id = ''
 access_key_secret = ''
 bucket_name = 'yongit'
