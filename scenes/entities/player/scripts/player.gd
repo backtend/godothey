@@ -18,81 +18,81 @@ var isAttacking: bool = false
 
 # 每帧物理更新：读取输入 -> 计算速度 -> 移动 -> 切换动画
 func _physics_process(delta: float) -> void:
-	var xAxios: float = Input.get_axis("left", "right")
-	var yAxios: float = Input.get_axis("up", "down")
-	moveDirection = Vector2(xAxios, yAxios)
-	
-	# 角色移动
-	velocity = moveDirection * speed
-	move_and_slide()
+    var xAxios: float = Input.get_axis("left", "right")
+    var yAxios: float = Input.get_axis("up", "down")
+    moveDirection = Vector2(xAxios, yAxios)
+    
+    # 角色移动
+    velocity = moveDirection * speed
+    move_and_slide()
 
 
-	if !isAttacking and Input.is_action_just_pressed("attack"):
-		velocity = Vector2.ZERO # 攻击时停止移动
-		isAttacking = true
-		attackTimer = 0
-		print_debug("攻击方向：" + get_animation_direction())
-		animationPlayer.play("attack_" + get_animation_direction())
+    if !isAttacking and Input.is_action_just_pressed("attack"):
+        velocity = Vector2.ZERO # 攻击时停止移动
+        isAttacking = true
+        attackTimer = 0
+        print_debug("攻击方向：" + get_animation_direction())
+        animationPlayer.play("attack_" + get_animation_direction())
 
-	if isAttacking:
-		attackTimer += delta
-		if attackTimer >= attackDuration:
-			attackTimer = 0.0
-			isAttacking = false
-		return # 直接退出
+    if isAttacking:
+        attackTimer += delta
+        if attackTimer >= attackDuration:
+            attackTimer = 0.0
+            isAttacking = false
+        return # 直接退出
 
 
-	_update_direction_and_animation()
+    _update_direction_and_animation()
 
 
 func _update_direction_and_animation() -> void:
-	# 根据输入方向播放对应行走动画
-	if moveDirection != Vector2.ZERO:
-		var newDirection: Vector2
-		if abs(moveDirection.x) > abs(moveDirection.y):
-			newDirection = Vector2.RIGHT if moveDirection.x > 0 else Vector2.LEFT
-		else:
-			newDirection = Vector2.DOWN if moveDirection.y > 0 else Vector2.UP
+    # 根据输入方向播放对应行走动画
+    if moveDirection != Vector2.ZERO:
+        var newDirection: Vector2
+        if abs(moveDirection.x) > abs(moveDirection.y):
+            newDirection = Vector2.RIGHT if moveDirection.x > 0 else Vector2.LEFT
+        else:
+            newDirection = Vector2.DOWN if moveDirection.y > 0 else Vector2.UP
 
-		if newDirection != playerDirection:
-			playerDirection = newDirection
+        if newDirection != playerDirection:
+            playerDirection = newDirection
 
 
-	#if moveDirection != Vector2.ZERO:
-	#	if xAxios > 0:
-	#		animationPlayer.play("walk_side")
-	#		sprite.flip_h = false
-	#	elif xAxios < 0:
-	#		animationPlayer.play("walk_side")
-	#		sprite.flip_h = true
-	#	elif yAxios > 0:
-	#		animationPlayer.play("walk_down")
-	#	elif yAxios < 0:
-	#		animationPlayer.play("walk_up")
-	#		
-	#else:
-	#	# 无输入时默认待机朝下
-	#	animationPlayer.play("idle_down")
+    #if moveDirection != Vector2.ZERO:
+    #    if xAxios > 0:
+    #        animationPlayer.play("walk_side")
+    #        sprite.flip_h = false
+    #    elif xAxios < 0:
+    #        animationPlayer.play("walk_side")
+    #        sprite.flip_h = true
+    #    elif yAxios > 0:
+    #        animationPlayer.play("walk_down")
+    #    elif yAxios < 0:
+    #        animationPlayer.play("walk_up")
+    #        
+    #else:
+    #    # 无输入时默认待机朝下
+    #    animationPlayer.play("idle_down")
 
-	#更新动画
-	update_animation()
+    #更新动画
+    update_animation()
 
 # 更新角色的动画
 func update_animation() -> void:
-	var currentState = "walk" if moveDirection != Vector2.ZERO else "idle"
-	var direction: String = get_animation_direction()
-	var animationName: String = currentState + "_" + direction
+    var currentState = "walk" if moveDirection != Vector2.ZERO else "idle"
+    var direction: String = get_animation_direction()
+    var animationName: String = currentState + "_" + direction
 
-	if animationPlayer.has_animation(animationName):
-		animationPlayer.play(animationName)
-	else:
-		print_debug("动画不存在啊啊：" + animationName)
+    if animationPlayer.has_animation(animationName):
+        animationPlayer.play(animationName)
+    else:
+        print_debug("动画不存在啊啊：" + animationName)
 
 # 获取动画方向的字符串
 func get_animation_direction() -> String:
-	if abs(playerDirection.x) > abs(playerDirection.y):
-		sprite.flip_h = playerDirection.x < 0
-		return "side"
-	if playerDirection.y < 0:
-		return "up"
-	return "down"
+    if abs(playerDirection.x) > abs(playerDirection.y):
+        sprite.flip_h = playerDirection.x < 0
+        return "side"
+    if playerDirection.y < 0:
+        return "up"
+    return "down"
