@@ -31,8 +31,8 @@ PRIVATE_KEY_PEM = PROJECT_ROOT / "docs/signing/private_key.pem"
 # =========================================================
 # 阿里云 OSS 配置
 # =========================================================
-TESTAID = "XXXXXXXXXXLTAI5t5bTvMz5HyN34px6G68"
-TESTAKY = "XXXXXXXXXXKIb6xcnxCbnhMCsYF3bLGOGvcn6Zi8"
+TESTAID = "XXXXXXXXXXLTAI5t5bTvMz5HyN34px6G68".strip('XXXXXXXXXX')
+TESTAKY = "XXXXXXXXXXKIb6xcnxCbnhMCsYF3bLGOGvcn6Zi8".strip('XXXXXXXXXX')
 OSS_BUCKET = "yongit"
 OSS_ENDPOINT = "oss-cn-beijing.aliyuncs.com"
 OSS_BASE_URL = f"https://{OSS_BUCKET}.{OSS_ENDPOINT}"
