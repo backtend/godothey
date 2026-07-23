@@ -11,3 +11,5 @@ Thumbs.db
 
 *.apk
 *.idsig
+
+.venv

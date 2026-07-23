@@ -14,13 +14,26 @@ var _apk_local_path: String
 @onready var cancel_button: Button = %CancelButton
 
 func _ready() -> void:
-    title_label.text = Updater.title
-    intro_label.text = Updater.intro
+    # 检查 Updater 单例是否存在（防止因单例缺失直接卡死崩溃）
+    if not Engine.has_singleton("Updater") and not get_node_or_null("/root/Updater"):
+        push_error("未检测到 Updater 单例！请确保已在 项目设置 -> 自动加载(Autoload) 中注册了 Updater。")
+    
+    # 设置界面初始化文本
+    if "title" in Updater:
+        title_label.text = Updater.title
+    if "intro" in Updater:
+        intro_label.text = Updater.intro
+        
     progress_bar.visible = false
     status_label.text = ""
-    # 强制升级(1)不允许取消
-    cancel_button.disabled = false
-    cancel_button.visible = Updater.upgrade_mode != 1
+    
+    # 强制升级模式判断 (1 为强制升级)
+    var upgrade_mode = Updater.upgrade_mode if "upgrade_mode" in Updater else 0
+    cancel_button.visible = (upgrade_mode != 1)
+    
+    if upgrade_mode == 1:
+        get_tree().root.set_meta("_block_back", true)
+        
     confirm_button.pressed.connect(_on_confirm_pressed)
     cancel_button.pressed.connect(_on_cancel_pressed)
 
@@ -31,6 +44,7 @@ func _on_confirm_pressed() -> void:
     confirm_button.disabled = true
     cancel_button.disabled = true
     progress_bar.visible = true
+    progress_bar.value = 0
     status_label.text = "准备下载..."
     await _download_and_install()
 
@@ -42,6 +56,8 @@ func _download_and_install() -> void:
     add_child(_http)
     _http.download_file = _zip_local_path
     _http.use_threads = true
+    _http.timeout = 0
+    _http.max_redirects = 8
 
     var progress_timer := Timer.new()
     progress_timer.wait_time = 0.15
@@ -65,7 +81,7 @@ func _download_and_install() -> void:
     _http.queue_free()
 
     if http_result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
-        _fail("下载失败，HTTP状态: %s" % response_code)
+        _fail("下载失败，HTTP状态: %s (result=%s)" % [response_code, http_result])
         return
 
     status_label.text = "校验文件完整性..."
@@ -134,7 +150,6 @@ func _install_apk(apk_path: String) -> void:
     status_label.text = "正在唤起系统安装程序..."
     if OS.get_name() == "Android":
         if Engine.has_singleton("InstallApk"):
-            # 需要一个提供apk安装Intent的Android插件（见下方说明）
             Engine.get_singleton("InstallApk").install(apk_path)
         else:
             push_warning("未检测到InstallApk插件，尝试shell_open（Android 7.0+上通常无效）")
