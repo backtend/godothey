@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://eeog83yhom2r"]
 
-[ext_resource type="Script" uid="uid://bcd7hssxg2xrx" path="res://scripts/upgrade/upgrade.gd" id="1_6bmsu"]
+[ext_resource type="Script" uid="uid://crcwmhhtje0ss" path="res://scripts/upgrade/Upgrade.gd" id="1_6bmsu"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
