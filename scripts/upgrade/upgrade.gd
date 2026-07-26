@@ -95,6 +95,10 @@ func _download_and_install() -> void:
         _fail("解压失败")
         return
 
+    if not Updater.dist_name or Updater.dist_name == "":
+        _fail("未在 Updater 中配置 dist_name")
+        return
+
     _apk_local_path = extract_dir + Updater.dist_name
     if not FileAccess.file_exists(_apk_local_path):
         _fail("未在解压结果中找到安装包: %s" % Updater.dist_name)

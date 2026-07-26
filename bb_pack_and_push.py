@@ -113,7 +113,7 @@ def upload_to_oss(local_file, object_name, content_type="application/zip"):
     else:
         raise RuntimeError(f"OSS Upload failed [{resp.status_code}]: {resp.text}")
 
-def create_version_record(version, download_url, zip_name, sha256_hash, dist_sign, size):
+def create_version_record(version, zipInfo, distInfo):
     secret = SERVER_SECRET_PREFIX + datetime.now().strftime("%y%m")
     ts = str(int(time.time()))
     m1 = hashlib.md5((secret + ts).encode()).hexdigest()
@@ -126,13 +126,13 @@ def create_version_record(version, download_url, zip_name, sha256_hash, dist_sig
         "project_tag": PROJECT_TAG,
         "device_type": DEVICE_TYPE,
         "version_name": version,
-        "zip_url": download_url,
-        "zip_name": zip_name,
-        "zip_hash": sha256_hash,
-        "zip_size": size,
-        "dist_name": zip_name,
-        "dist_size": size,
-        "dist_sign": dist_sign,
+        "zip_url": zipInfo["downloadUrl"],
+        "zip_name": zipInfo["name"],
+        "zip_hash": zipInfo["sha256"],
+        "zip_size": zipInfo["size"],
+        "dist_name": distInfo["name"],
+        "dist_size": distInfo["size"],
+        "dist_sign": distInfo["sign"],
         "gray_target": "testphone",
         "remark": "Auto Build",
     }
@@ -148,33 +148,43 @@ def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     # 1. Godot 导出 APK
-    apk_name = f"{PROJECT_ALIAS}-{version}.apk"
-    apk_path = OUTPUT_DIR / apk_name
-    build_godot(apk_path)
+    distName = f"{PROJECT_ALIAS}-{version}.apk"
+    distPath = OUTPUT_DIR / distName
+    build_godot(distPath)
 
     # 2. 压缩成 ZIP
-    zip_name = f"{PROJECT_ALIAS}-{version}.zip"
-    zip_path = OUTPUT_DIR / zip_name
-    zip_file(apk_path, zip_path)
+    zipName = f"{PROJECT_ALIAS}-{version}.zip"
+    zipPath = OUTPUT_DIR / zipName
+    zip_file(distPath, zipPath)
 
     # 3. 签名与哈希计算
-    sha256 = sha256_file(zip_path)
-    sign = sign_file_rsa(zip_path)
-    size = zip_path.stat().st_size
+    sha256 = sha256_file(zipPath)
+    distSign = sign_file_rsa(distPath)
+    zipSize = zipPath.stat().st_size
+    distSize = distPath.stat().st_size
 
     # 4. 上传至阿里云 OSS (原生 PUT 请求，免 SDK)
-    object_path = f"{PROJECT_ALIAS}/{zip_name}"
-    download_url = upload_to_oss(zip_path, object_path)
+    object_path = f"{PROJECT_ALIAS}/{zipName}"
+    downloadUrl = upload_to_oss(zipPath, object_path)
 
     print("\n" + "=" * 60)
     print(f"Version  : {version}")
-    print(f"ZIP      : {zip_name}")
-    print(f"URL      : {download_url}")
+    print(f"ZIP      : {zipName}")
+    print(f"URL      : {downloadUrl}")
     print(f"SHA256   : {sha256}")
     print("=" * 60)
 
     # 5. 上报版本服务记录
-    resp = create_version_record(version, download_url, zip_name, sha256, sign, size)
+    resp = create_version_record(version, zipInfo={
+        "downloadUrl": downloadUrl,
+        "name":zipName,
+        "sha256":sha256,
+        "size":zipSize,
+    },distInfo={
+        "name":distName,
+        "sign":distSign,
+        "size":distSize,
+    })
 
     print(f"\nServer Response [{resp.status_code}]:\n{resp.text}\n")
     print(f"Total Elapsed: {time.time() - start_time:.2f}s")
