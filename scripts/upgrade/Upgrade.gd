@@ -14,6 +14,11 @@ var _apk_local_path: String
 @onready var cancel_button: Button = %CancelButton
 
 func _ready() -> void:
+    # 当前版本号
+    var version_name = ProjectSettings.get_setting("application/config/version")
+    print("Project Version:", version_name)
+
+
     # 检查 Updater 单例是否存在（防止因单例缺失直接卡死崩溃）
     if not Engine.has_singleton("Updater") and not get_node_or_null("/root/Updater"):
         push_error("未检测到 Updater 单例！请确保已在 项目设置 -> 自动加载(Autoload) 中注册了 Updater。")
@@ -23,7 +28,9 @@ func _ready() -> void:
         title_label.text = Updater.title
     if "intro" in Updater:
         intro_label.text = Updater.intro
-        
+    
+    intro_label.text = "[%s]%s" % [version_name, intro_label.text]
+
     progress_bar.visible = false
     status_label.text = ""
     
@@ -153,14 +160,18 @@ func _unzip(zip_path: String, target_dir: String) -> bool:
 func _install_apk(apk_path: String) -> void:
     status_label.text = "正在唤起系统安装程序..."
     if OS.get_name() == "Android":
+        push_warning("尝试使用 InstallApk 插件安装 APK: %s" % apk_path)
         if Engine.has_singleton("InstallApk"):
             Engine.get_singleton("InstallApk").install(apk_path)
+            status_label.text = "请在弹出的系统界面中确认安装.InstallApk.准备插件安装"
         else:
             push_warning("未检测到InstallApk插件，尝试shell_open（Android 7.0+上通常无效）")
             OS.shell_open(apk_path)
+            status_label.text = "请在弹出的系统界面中确认安装.shell_open"
     else:
+        push_warning("非Android平台，尝试使用shell_open打开APK: %s" % apk_path)
         OS.shell_open(apk_path)
-    status_label.text = "请在弹出的系统界面中确认安装"
+        status_label.text = "请在弹出的系统界面中确认安装.shell_open.not android"
 
 func _fail(msg: String) -> void:
     status_label.text = msg

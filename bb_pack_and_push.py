@@ -12,6 +12,7 @@ from datetime import datetime
 from email.utils import formatdate
 from pathlib import Path
 from urllib.parse import quote
+import re
 
 import requests
 
@@ -23,6 +24,7 @@ EXPORT_PRESET = "AndroidHello"
 PROJECT_ALIAS = "godothey"
 PROJECT_TAG = "godothey"
 DEVICE_TYPE = "android"
+BUILDED_CLIENT_UUID = "e3748630-3877-4f5e-a4db-91a5cd90bf42"
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 OUTPUT_DIR = PROJECT_ROOT / "docs/releases"
@@ -40,16 +42,44 @@ OSS_BASE_URL = f"https://{OSS_BUCKET}.{OSS_ENDPOINT}"
 # =========================================================
 # API 服务端配置
 # =========================================================
-SERVER_URL = "https://apix.yongit.com/programer/create"
+SERVER_BASE_URL = "https://apix.yongit.com"
 SERVER_SECRET_PREFIX = "ce137c47b32e37dce807756b92ccbx"
 
 # =========================================================
 # 核心业务逻辑
 # =========================================================
 
-def gen_version():
+def get_version_name():
     now = datetime.now()
-    return f"{now.year % 100}.{now.month * 100 + now.day}.{now.hour * 100 + now.minute}"
+    major = int(now.year - 2025)*1
+    minor = int(now.month*100 + now.day)*1
+    patch = int(now.hour * 10 + now.minute//6)*1
+    return f"{major}.{minor}.{patch}"
+
+def get_version_code(version_name):
+    parts = version_name.split(".")
+    if len(parts) != 3:
+        raise ValueError("Invalid version name format")
+    return int(parts[0]) * 10000000 + int(parts[1]) * 1000 + int(parts[2])
+
+
+def update_project_godot(version_name):
+    file = PROJECT_ROOT / "project.godot"
+    content = file.read_text(encoding="utf-8")
+    if re.search(r'config/version=".*?"', content):
+        content = re.sub(r'config/version=".*?"', f'config/version="{version_name}"', content)
+    else:
+        content += ("\n[application]\n"f'config/version="{version_name}"\n')
+    file.write_text(content, encoding="utf-8")
+
+
+def update_export_presets(version_name, version_code):
+    file = PROJECT_ROOT / "export_presets.cfg"
+    content = file.read_text(encoding="utf-8")
+    content = re.sub(r'version/code=\d+', f'version/code={version_code}', content)
+    content = re.sub(r'version/name=".*?"', f'version/name="{version_name}"', content)
+    file.write_text(content, encoding="utf-8")
+
 
 def build_godot(apk_path):
     print("\n" + "=" * 60 + "\nBuilding Godot...\n" + "=" * 60)
@@ -113,19 +143,22 @@ def upload_to_oss(localFile, objectName, contentType="application/zip"):
     else:
         raise RuntimeError(f"OSS Upload failed [{resp.status_code}]: {resp.text}")
 
-def create_version_record(version, zipInfo, distInfo):
-    secret = SERVER_SECRET_PREFIX + datetime.now().strftime("%y%m")
-    ts = str(int(time.time()))
-    m1 = hashlib.md5((secret + ts).encode()).hexdigest()
-    m2 = hashlib.md5(m1.encode()).hexdigest()
-    token = base64.b64encode(f"{m2},{ts}".encode()).decode()
-
+def check_version_cangen(versionName) -> bool:
     payload = {
-        "title": f"Godot Auto Build {version}",
+        "project_tag": PROJECT_TAG,
+        "device_type": DEVICE_TYPE,
+        "version_name": versionName,
+    }
+    code,data,msg,rid = httppost("/programer/cangen",payload)
+    return code == 200
+
+def create_version_record(versionName, zipInfo, distInfo):
+    payload = {
+        "title": f"Godot Auto Build {versionName}",
         "intro": "",
         "project_tag": PROJECT_TAG,
         "device_type": DEVICE_TYPE,
-        "version_name": version,
+        "version_name": versionName,
 
         "zip_url": zipInfo["url"],
         "zip_name": zipInfo["name"],
@@ -137,27 +170,63 @@ def create_version_record(version, zipInfo, distInfo):
         "dist_size": distInfo["size"],
         "dist_sign": distInfo["sign"],
 
-        "gray_target": "testphone",
+        "gray_target": BUILDED_CLIENT_UUID,
         "remark": "Auto Build",
     }
-    headers = {
+    return httppost("/programer/create", payload)
+
+
+def httppost(path, data, headers=None):
+    secret = SERVER_SECRET_PREFIX + datetime.now().strftime("%y%m")
+    ts = str(int(time.time()))
+    m1 = hashlib.md5((secret + ts).encode()).hexdigest()
+    m2 = hashlib.md5(m1.encode()).hexdigest()
+    token = base64.b64encode(f"{m2},{ts}".encode()).decode()
+    headerNew = {
         "Authorization": f"Token {token}",
         "Content-Type": "application/json",
     }
-    return requests.post(SERVER_URL, headers=headers, json=payload, timeout=20)
+
+    url = SERVER_BASE_URL + path
+    headers = headers.update(headerNew) if headers else headerNew
+    resp = requests.post(url, json=data, headers=headers, timeout=20)
+    if resp.status_code != 200:
+        return resp.status_code, {}, resp.text, resp.headers.get("X-Request-ID", "")
+    
+    try:
+        code = resp.json().get("code", 666)
+        data = resp.json().get("data", {})
+        msg = resp.json().get("msg", "")
+        rid = resp.json().get("msg", "")
+    except json.JSONDecodeError:
+        return resp.status_code, {}, "Invalid JSON response", resp.headers.get("X-Request-ID", "")
+    return code, data, msg, rid
+
 
 def main():
-    start_time = time.time()
-    version = gen_version()
+    versionName = get_version_name()
+    versionCode = get_version_code(versionName)
+
+    # 检查服务器是否允许当前project_tag-device_type-version_name的版本上报
+    # 这里可以添加一个请求到服务器的检查逻辑，如果不允许，则直接退出
+    if not check_version_cangen(versionName):
+        print(f"Version {versionName} is not valid for upload. Exiting.")
+        sys.exit(1)
+
+
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+    update_project_godot(versionName)
+    update_export_presets(versionName, versionCode)
+
+
     # 1. Godot 导出 APK
-    distName = f"{PROJECT_ALIAS}-{version}.apk"
+    distName = f"{PROJECT_ALIAS}-{versionName}.apk"
     distPath = OUTPUT_DIR / distName
     build_godot(distPath)
 
     # 2. 压缩成 ZIP
-    zipName = f"{PROJECT_ALIAS}-{version}.zip"
+    zipName = f"{PROJECT_ALIAS}-{versionName}.zip"
     zipPath = OUTPUT_DIR / zipName
     zip_file(distPath, zipPath)
 
@@ -181,14 +250,14 @@ def main():
         print(f"APK Download URL: {downloadDistUrl}")
 
     print("\n" + "=" * 60)
-    print(f"Version  : {version}")
+    print(f"Version  : {versionName} (Code: {versionCode})")
     print(f"ZIP      : {zipName}")
     print(f"ZIP URL  : {downloadZipUrl}")
     print(f"SHA256   : {sha256}")
     print("=" * 60)
 
     # 5. 上报版本服务记录
-    resp = create_version_record(version, zipInfo={
+    code, data, msg, rid = create_version_record(versionName, zipInfo={
         "url": downloadZipUrl,
         "name":zipName,
         "sha256":sha256,
@@ -199,9 +268,15 @@ def main():
         "sign":distSign,
         "size":distSize,
     })
+    print(f"Create Version Record: code={code}, msg={msg}, rid={rid}")
 
-    print(f"\nServer Response [{resp.status_code}]:\n{resp.text}\n")
-    print(f"Total Elapsed: {time.time() - start_time:.2f}s")
 
 if __name__ == "__main__":
+    startTimestamp = time.time()
+
+    # versionName = get_version_name()
+    # print(f"Version Name: {versionName}, Version Code: {get_version_code(versionName)}")
+    # print(60//6)
     main()
+
+    print(f"Total Elapsed: {time.time() - startTimestamp:.2f}s")

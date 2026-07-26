@@ -1,17 +1,41 @@
 extends Node
 
-# const CHECK_URL := "https://apix.yongit.com/programer/check?project_tag=yongitbox&device_type=android&version_name=6.719.2041&gray_target=aad55cca32a4b00d"
-const CHECK_URL := "https://apix.yongit.com/programer/check?project_tag=godothey&device_type=android&version_name=1.1.1&gray_target=testphone"
-
 func _ready() -> void:
+    print("Main.gd _ready() called.")
+    print("Client UUID:", Configuration.get_val("clientuuid"))
     await get_tree().create_timer(2.0).timeout
     await _check_upgrade()
 
+    # 更新版本号标签
+    var version_name = ProjectSettings.get_setting("application/config/version", "")
+    var version_label: Label = get_node("VersionLabel") as Label
+    if version_label:
+        version_label.text = "Version: %s" % version_name
+
+
+func _get_upgrade_url() -> String:
+    var base_url := "https://apix.yongit.com/programer/check"
+    var version_name: String = ProjectSettings.get_setting("application/config/version", "")
+    var params := {
+        "project_tag": "godothey",
+        "device_type": "android",
+        "version_name": version_name,
+        "gray_target": Configuration.get_val("clientuuid")
+    }
+    var query_parts := PackedStringArray()
+    for key in params:
+        query_parts.append("%s=%s" % [key.uri_encode(), str(params[key]).uri_encode()])
+    return "%s?%s" % [base_url, "&".join(query_parts)]
+
 func _check_upgrade() -> void:
+    # 当前版本号
+    var version_name = ProjectSettings.get_setting("application/config/version")
+    print("Project Version:", version_name, " Client UUID:", Configuration.get_val("clientuuid"))
+
     var http := HTTPRequest.new()
     add_child(http)
 
-    var err := http.request(CHECK_URL)
+    var err := http.request(_get_upgrade_url())
     if err != OK:
         push_warning("升级检查请求发起失败: %s" % err)
         http.queue_free()
