@@ -13,3 +13,18 @@ Thumbs.db
 *.idsig
 
 .venv
+
+
+
+# Godot Android build cache
+android/build/.gradle/
+android/build/build/
+android/build/.cxx/
+android/build/outputs/
+android/build/intermediates/
+android/build/.externalNativeBuild/
+
+# Gradle
+*.apk
+*.aab
+*.apks

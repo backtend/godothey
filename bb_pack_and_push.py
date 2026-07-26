@@ -81,12 +81,12 @@ def sign_file_rsa(file_path):
     )
     return base64.b64encode(res.stdout).decode()
 
-def upload_to_oss(local_file, object_name, content_type="application/zip"):
+def upload_to_oss(localFile, objectName, contentType="application/zip"):
     print("==> Uploading to Aliyun OSS...")
     date_str = formatdate(usegmt=True)
-    clean_object_path = object_name.lstrip('/')
+    clean_object_path = objectName.lstrip('/')
     canonicalized_resource = f"/{OSS_BUCKET}/{clean_object_path}"
-    string_to_sign = f"PUT\n\n{content_type}\n{date_str}\n{canonicalized_resource}"
+    string_to_sign = f"PUT\n\n{contentType}\n{date_str}\n{canonicalized_resource}"
 
     signature = base64.b64encode(
         hmac.new(
@@ -98,13 +98,13 @@ def upload_to_oss(local_file, object_name, content_type="application/zip"):
 
     headers = {
         'Authorization': f'OSS {TESTAID}:{signature}',
-        'Content-Type': content_type,
+        'Content-Type': contentType,
         'Date': date_str,
     }
 
     url = f"https://{OSS_BUCKET}.{OSS_ENDPOINT}/{quote(clean_object_path)}"
     
-    with open(local_file, 'rb') as f:
+    with open(localFile, 'rb') as f:
         resp = requests.put(url, headers=headers, data=f, timeout=120)
 
     if resp.status_code == 200:
@@ -126,13 +126,17 @@ def create_version_record(version, zipInfo, distInfo):
         "project_tag": PROJECT_TAG,
         "device_type": DEVICE_TYPE,
         "version_name": version,
-        "zip_url": zipInfo["downloadUrl"],
+
+        "zip_url": zipInfo["url"],
         "zip_name": zipInfo["name"],
         "zip_hash": zipInfo["sha256"],
         "zip_size": zipInfo["size"],
+
+        "dist_url": distInfo["url"],
         "dist_name": distInfo["name"],
         "dist_size": distInfo["size"],
         "dist_sign": distInfo["sign"],
+
         "gray_target": "testphone",
         "remark": "Auto Build",
     }
@@ -164,23 +168,33 @@ def main():
     distSize = distPath.stat().st_size
 
     # 4. 上传至阿里云 OSS (原生 PUT 请求，免 SDK)
-    object_path = f"{PROJECT_ALIAS}/{zipName}"
-    downloadUrl = upload_to_oss(zipPath, object_path)
+    print("=" * 60)
+    print("Uploading zip to OSS:{}".format(zipName))
+    objectZipFull = f"{PROJECT_ALIAS}/{zipName}"
+    downloadZipUrl = upload_to_oss(zipPath, objectZipFull)
+
+    downloadDistUrl = 'https://baidu.com/app.apk'
+    if True:
+        objectDistFull = f"{PROJECT_ALIAS}/{distName}"
+        print(f"Uploading APK to OSS: {objectDistFull}")
+        downloadDistUrl = upload_to_oss(distPath, objectDistFull, contentType="application/vnd.android.package-archive")
+        print(f"APK Download URL: {downloadDistUrl}")
 
     print("\n" + "=" * 60)
     print(f"Version  : {version}")
     print(f"ZIP      : {zipName}")
-    print(f"URL      : {downloadUrl}")
+    print(f"ZIP URL  : {downloadZipUrl}")
     print(f"SHA256   : {sha256}")
     print("=" * 60)
 
     # 5. 上报版本服务记录
     resp = create_version_record(version, zipInfo={
-        "downloadUrl": downloadUrl,
+        "url": downloadZipUrl,
         "name":zipName,
         "sha256":sha256,
         "size":zipSize,
     },distInfo={
+        "url": downloadDistUrl,
         "name":distName,
         "sign":distSign,
         "size":distSize,

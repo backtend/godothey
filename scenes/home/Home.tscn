@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://b2e5g0ixxl0fv"]
 
 [ext_resource type="Texture2D" uid="uid://cvtllpyd13kos" path="res://icon.svg" id="1_ig7tw"]
-[ext_resource type="Script" uid="uid://24fvjgoiwgld" path="res://scripts/goboy.gd" id="2_0xm2m"]
-[ext_resource type="PackedScene" uid="uid://jhqiqjka0y2i" path="res://scenes/entities/girl/girl.tscn" id="3_h2yge"]
-[ext_resource type="PackedScene" uid="uid://dum7mxc4e5ct2" path="res://scenes/entities/player/player.tscn" id="4_1bvp3"]
+[ext_resource type="Script" uid="uid://24fvjgoiwgld" path="res://scripts/Goboy.gd" id="2_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://jhqiqjka0y2i" path="res://scenes/entities/girl/Girl.tscn" id="3_h2yge"]
+[ext_resource type="PackedScene" uid="uid://dum7mxc4e5ct2" path="res://scenes/entities/player/Player.tscn" id="4_1bvp3"]
 
 [node name="Node2D" type="Node2D" unique_id=2054691334]
 
