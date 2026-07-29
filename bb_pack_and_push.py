@@ -34,8 +34,8 @@ PRIVATE_KEY_PEM = PROJECT_ROOT / "docs/signing/private_key.pem"
 # =========================================================
 # 阿里云 OSS 配置
 # =========================================================
-TESTAID = "XXXXXXXXXXLTAI5t5bTvMz5HyN34px6G68".strip('XXXXXXXXXX')
-TESTAKY = "XXXXXXXXXXKIb6xcnxCbnhMCsYF3bLGOGvcn6Zi8".strip('XXXXXXXXXX')
+OSS_ACCID = "XXXXXXXXXXLTAI5t5bTvMz5HyN34px6G68".strip('XXXXXXXXXX')
+OSS_ACCKEY = "XXXXXXXXXXKIb6xcnxCbnhMCsYF3bLGOGvcn6Zi8".strip('XXXXXXXXXX')
 OSS_BUCKET = "yongit"
 OSS_ENDPOINT = "oss-cn-beijing.aliyuncs.com"
 OSS_BASE_URL = f"https://{OSS_BUCKET}.{OSS_ENDPOINT}"
@@ -121,14 +121,14 @@ def upload_to_oss(localFile, objectName, contentType="application/zip"):
 
     signature = base64.b64encode(
         hmac.new(
-            TESTAKY.encode('utf-8'),
+            OSS_ACCKEY.encode('utf-8'),
             string_to_sign.encode('utf-8'),
             hashlib.sha1
         ).digest()
     ).decode('utf-8')
 
     headers = {
-        'Authorization': f'OSS {TESTAID}:{signature}',
+        'Authorization': f'OSS {OSS_ACCID}:{signature}',
         'Content-Type': contentType,
         'Date': date_str,
     }
