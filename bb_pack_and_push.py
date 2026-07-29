@@ -24,7 +24,8 @@ EXPORT_PRESET = "AndroidHello"
 PROJECT_ALIAS = "godothey"
 PROJECT_TAG = "godothey"
 DEVICE_TYPE = "android"
-BUILDED_CLIENT_UUID = "e3748630-3877-4f5e-a4db-91a5cd90bf42"
+# BUILDED_CLIENT_UUID = "e3748630-3877-4f5e-a4db-91a5cd90bf42"
+BUILDED_CLIENT_UUID = ""
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 OUTPUT_DIR = PROJECT_ROOT / "docs/releases"

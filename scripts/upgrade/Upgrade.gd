@@ -159,19 +159,37 @@ func _unzip(zip_path: String, target_dir: String) -> bool:
 
 func _install_apk(apk_path: String) -> void:
     status_label.text = "正在唤起系统安装程序..."
-    if OS.get_name() == "Android":
-        push_warning("尝试使用 InstallApk 插件安装 APK: %s" % apk_path)
-        if Engine.has_singleton("InstallApk"):
-            Engine.get_singleton("InstallApk").install(apk_path)
-            status_label.text = "请在弹出的系统界面中确认安装.InstallApk.准备插件安装"
-        else:
-            push_warning("未检测到InstallApk插件，尝试shell_open（Android 7.0+上通常无效）")
-            OS.shell_open(apk_path)
-            status_label.text = "请在弹出的系统界面中确认安装.shell_open"
-    else:
-        push_warning("非Android平台，尝试使用shell_open打开APK: %s" % apk_path)
-        OS.shell_open(apk_path)
-        status_label.text = "请在弹出的系统界面中确认安装.shell_open.not android"
+    if OS.get_name() != "Android":
+        status_label.text = "请在弹出的系统界面中确认安装（非Android平台）"
+        # OS.shell_open(apk_path)
+        return
+
+    if not Engine.has_singleton("InstallApk"):
+        push_warning("未检测到InstallApk插件，尝试shell_open（Android 7.0+上通常无效）")
+        status_label.text = "未检测到InstallApk插件，尝试shell_open（Android 7.0+上通常无效）"
+        # OS.shell_open(apk_path)
+        return
+    
+    var installer = Engine.get_singleton("InstallApk")
+    var real_path = ProjectSettings.globalize_path(apk_path) # 关键转换
+
+    installer.connect("install_permission_denied", _on_install_permission_denied)
+    installer.connect("install_launch_failed", _on_install_launch_failed)
+
+    if not installer.canInstall():
+        status_label.text = "请先在系统设置中允许安装未知应用.canInstall()返回false"
+        installer.requestInstallPermission()
+        return
+
+    installer.install(real_path)
+    status_label.text = "请在弹出的系统界面中确认安装.canInstall"
+
+func _on_install_permission_denied() -> void:
+    status_label.text = "未授权安装未知应用，请在设置中开启后重试"
+    confirm_button.disabled = false
+
+func _on_install_launch_failed(msg: String) -> void:
+    _fail("安装失败: %s" % msg)
 
 func _fail(msg: String) -> void:
     status_label.text = msg
