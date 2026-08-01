@@ -1,5 +1,7 @@
 extends Node
 
+@onready var version_label: Label = $CanvasLayer/Panel/VersionLabel
+
 func _ready() -> void:
     print("Main.gd _ready() called.")
     print("Client UUID:", Configuration.get_val("clientuuid"))
@@ -8,7 +10,6 @@ func _ready() -> void:
 
     # 更新版本号标签
     var version_name = ProjectSettings.get_setting("application/config/version", "")
-    var version_label: Label = get_node("VersionLabel") as Label
     if version_label:
         version_label.text = "Version: %s" % version_name
 

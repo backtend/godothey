@@ -20,6 +20,27 @@ godot --headless --export-debug "AndroidHello" docs/releases/godothey.apk
 godot --headless --export-release "AndroidHello" docs/releases/godothey.apk
 
 
+## 更改外部编辑器
+系统菜单-编辑器设置-搜索“text_editor”
+设置可执行文件路径为： /Applications/Visual Studio Code.app
+执行参数为： {project} --goto {file}:{line}:{col}
+勾选使用外部编辑器
+
+## VSCODE 操作
+打开 终端，输入： code --version
+如果提示找不到命令，请按以下方式添加：
+打开 VS Code。
+按 Cmd + Shift + P，输入并选择：textShell Command: Install 'code' command in PATH
+重新打开终端，再次输入 code --version 确认。
+
+Godot Tools 的发布者（作者）是：Geequlim
+VS Code 市场扩展 ID：geequlim.godot-tools
+安装完 Godot Tools 后，按 Cmd + , 打开设置，搜索 godot：
+找到 Godot Tools: Editor Path
+填入你的 Godot 可执行文件路径，例如(仅工作区)： /Applications/Godot.app/Contents/MacOS/Godot
+
+
+
 
 ### 常用函数
 

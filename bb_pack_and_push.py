@@ -224,6 +224,7 @@ def main():
     # 1. Godot 导出 APK
     distName = f"{PROJECT_ALIAS}-{versionName}.apk"
     distPath = OUTPUT_DIR / distName
+    print(f"Exporting Godot APK to: {distPath}")
     build_godot(distPath)
 
     # 2. 压缩成 ZIP

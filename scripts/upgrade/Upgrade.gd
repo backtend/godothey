@@ -167,6 +167,7 @@ func _install_apk(apk_path: String) -> void:
     if not Engine.has_singleton("InstallApk"):
         push_warning("未检测到InstallApk插件，尝试shell_open（Android 7.0+上通常无效）")
         status_label.text = "未检测到InstallApk插件，尝试shell_open（Android 7.0+上通常无效）"
+        print("未检测到InstallApk插件，不不不尝试shell_open")
         # OS.shell_open(apk_path)
         return
     
