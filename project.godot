@@ -18,8 +18,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-Auth="*uid://ccotnur7hg2ks"
-Configuration="*uid://b0p6qhqq0rymv"
+Auth="*uid://3qhtplm17ads"
+Configuration="*uid://dt4xjxocbvk1c"
 
 [display]
 
