@@ -13,14 +13,13 @@ func _ready() -> void:
         version_label.text = "Version: %s" % version_name
 
         
-    await get_tree().create_timer(2.0).timeout
-    await _initialize()
-
-func _initialize() -> void:
-    var toscene := await WelcomeLogic.initial(self)
+    await get_tree().create_timer(1.0).timeout
+    
+    var toscene := await WelcomeLogic.initial()
     print("初始化完成，跳转到：", toscene)
     get_tree().call_deferred("change_scene_to_file", toscene)
 
+    
 # func _after_upgrade_check() -> void:
 #     Auth.check_login_success.connect(_go_main)
 #     Auth.check_login_failed.connect(_go_login)

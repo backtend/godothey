@@ -8,12 +8,12 @@ class_name HttpMdtLib
 extends RefCounted
 
 ## 基础 URL（优先读环境变量 HTTPX_MDT_URL）
-static var BASE_URL: String = _get_env("HTTPX_MDT_URL", "")
+static var BASE_URL: String = _get_env("HTTPX_MDT_URL", "https://godot.yongit.com")
 
 ## MDT 密钥（优先读环境变量 HTTPX_MDT_SECRET）
 ## 也可通过 ProjectSettings 设置：application/config/mdt_secret
 ## 运行时可覆盖：HttpMdtLib.MDT_SECRET = "xxx"
-static var MDT_SECRET: String = ""
+static var MDT_SECRET: String = "fabc738e7c2950ae52238782626adeb6"
 
 
 ## 发送 POST 请求，支持自定义 headers，支持单文件/多文件上传（multipart）
@@ -22,7 +22,7 @@ static var MDT_SECRET: String = ""
 ##   - "mdt_secret": 覆盖默认密钥
 ##   - "timeout": 超时秒数（默认 15）
 ##   - "headers": Dictionary 或 PackedStringArray 额外请求头
-static func post(url: String, data: Dictionary = {}, options: Dictionary = {}) -> Array:
+static func doPost(url: String, data: Dictionary = {}, options: Dictionary = {}) -> Array:
 	var mdt_secret := str(options.get("mdt_secret", _get_mdt_secret()))
 	var timeout: float = float(options.get("timeout", 15.0))
 

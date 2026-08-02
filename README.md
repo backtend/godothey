@@ -15,6 +15,21 @@ keytool -genkeypair \
 keytool -list -v -keystore godothey.keystore
 
 
+
+# 自动升级 RSA签名
+```
+<!-- # 生成RSA私钥（2048位，密码可选，这里设置为空密码，方便脚本调用）生成的私钥文件：private_key.pem -->
+openssl genrsa -out private_key.pem 2048
+
+<!-- # 从私钥导出公钥（供客户端验签使用）生成的公钥文件：public_key.pem -->
+openssl rsa -in private_key.pem -pubout -out public_key.pem
+
+私钥用来签名，记得一定要把公钥放在这个文件变量中！！！！ app/src/main/java/com/yongit/box/service/UpgradeService.kt
+```
+
+
+
+
 ### 打包命令
 godot --headless --export-debug "AndroidHello" docs/releases/godothey.apk
 godot --headless --export-release "AndroidHello" docs/releases/godothey.apk
@@ -71,18 +86,4 @@ connect()                      连接信号
 
 
 
-
-
-# 自动升级 RSA签名
-```
-<!-- # 生成RSA私钥（2048位，密码可选，这里设置为空密码，方便脚本调用） -->
-<!-- # 生成的私钥文件：private_key.pem -->
-openssl genrsa -out private_key.pem 2048
-
-<!-- # 从私钥导出公钥（供客户端验签使用） -->
-<!-- # 生成的公钥文件：public_key.pem -->
-openssl rsa -in private_key.pem -pubout -out public_key.pem
-
-私钥用来签名，记得一定要把公钥放在这个文件变量中！！！！ app/src/main/java/com/yongit/box/service/UpgradeService.kt
-```
 

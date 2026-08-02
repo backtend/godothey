@@ -8,7 +8,7 @@ class_name HttpJwtLib
 extends RefCounted
 
 ## 基础 URL（优先读环境变量 HTTPX_JWT_URL）
-static var BASE_URL: String = _get_env("HTTPX_JWT_URL", "")
+static var BASE_URL: String = _get_env("HTTPX_JWT_URL", "https://godot.yongit.com")
 
 ## JWT Token 直接从 ProjectSettings 读取
 ## 设置方式：ProjectSettings.set_setting("application/config/jwt_token", "你的token")
@@ -18,9 +18,9 @@ static var JWT_TOKEN: String = ""
 
 ## 发送 POST 请求，支持自定义 headers，支持单文件/多文件上传（multipart）
 ## 返回 [code, msg, data, rid]  永远不会抛异常
-static func post(url: String, data: Dictionary = {}, options: Dictionary = {}) -> Array:
+static func doPost(url: String, data: Dictionary = {}, options: Dictionary = {}) -> Array:
 	var taged_string := {
-		"appd": "CDS",
+		"appd": "GDH",
 		"lang": _get_language(),
 		"vers": _get_env("APP_VERSION", "0.0.1"),
 		"zone": _get_timezone(),
