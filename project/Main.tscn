@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b2e5g0ixxl0fv"]
 
-[ext_resource type="Script" uid="uid://cq7ca1d2g4k4t" path="res://scripts/uis/Main.gd" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://b8tae5aspq1c8" path="res://scripts/uis/Main.gd" id="1_ig7tw"]
 
 [node name="Node" type="Node" unique_id=1256974477]
 script = ExtResource("1_ig7tw")
@@ -16,11 +16,17 @@ anchor_bottom = 0.75
 color = Color(0.129412, 0.203922, 0.321569, 1)
 
 [node name="Label" type="Label" parent="CanvasLayer/Panel" unique_id=1639540794]
-layout_mode = 0
+layout_mode = 1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_font_sizes/font_size = 28
-text = "Hi! 我在这里 👋"
+offset_left = 178.0
+offset_top = 81.0
+offset_right = 178.0
+offset_bottom = 81.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "AAAHi! 我在这里 👋===vvv"
 horizontal_alignment = 1
 vertical_alignment = 1
 
