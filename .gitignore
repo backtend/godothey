@@ -6,6 +6,9 @@
 *.tmp
 *.log
 
+# Godot 4 UID files
+*.uid
+
 .DS_Store
 Thumbs.db
 

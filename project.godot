@@ -19,7 +19,6 @@ config/icon="res://icon.svg"
 [autoload]
 
 Auth="*uid://ccotnur7hg2ks"
-Updater="*uid://dtt2tlmugraf0"
 Configuration="*uid://b0p6qhqq0rymv"
 
 [display]

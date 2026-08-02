@@ -36,10 +36,7 @@ func _on_guest_pressed() -> void:
 
 
 func _on_login_success() -> void:
-    get_tree().call_deferred(
-        "change_scene_to_file",
-		"res://scenes/home/Home.tscn"
-    )
+    get_tree().call_deferred("change_scene_to_file", "res://scenes/home/Home.tscn")
 
 
 func _on_login_failed(msg: String) -> void:
