@@ -1,3 +1,7 @@
 [gd_resource type="Theme" format=3 uid="uid://bnn05kp5pvnmh"]
 
+[sub_resource type="SystemFont" id="SystemFont_8d8nk"]
+font_names = PackedStringArray("PingFang SC", "Hiragino Sans GB")
+
 [resource]
+default_font = SubResource("SystemFont_8d8nk")
