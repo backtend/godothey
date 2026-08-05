@@ -6,7 +6,7 @@ extends RefCounted
 
 # 初始化
 static func initial() -> String:
-    var res: Array = await HttpBinLib.doPost("/index/initial", {
+    var res: Array = await HttpBinLib.doPost("/index/index/initial", {
         "project_tag": "godothey",
         "device_type": "android",
         "version_name": ProjectSettings.get_setting("application/config/version", ""),
