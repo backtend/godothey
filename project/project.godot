@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="GODOTHEY"
-config/version="1.731.126"
+config/version="1.809.12"
 run/main_scene="uid://b2e5g0ixxl0fv"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
