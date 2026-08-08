@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
+import os,sys
 import base64
 import hashlib
 import hmac
 import json
 import subprocess
-import sys
 import time
 import zipfile
 from datetime import datetime
@@ -28,6 +28,7 @@ DEVICE_TYPE = "android"
 BUILDED_CLIENT_UUID = ""
 
 PROJECT_ROOT = Path(__file__).resolve().parent
+PROGRAM_ROOT = os.path.join(PROJECT_ROOT, "project")
 OUTPUT_DIR = PROJECT_ROOT / "docs/releases"
 PRIVATE_KEY_PEM = PROJECT_ROOT / "docs/signing/private_key.pem"
 
