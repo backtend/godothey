@@ -11,11 +11,12 @@ var _upgrade_mode: int = 0
 var _release_url: String = ""
 
 func _ready() -> void:
-    var res: Array = await HttpMdtLib.doPost("/upgrade/check", {
+    var appVersion: String = ProjectSettings.get_setting("application/config/version", "")
+    var res: Array = await HttpMdtLib.doPost("/index/checking/upgrade", {
         "project_tag": "godothey",
         "device_type": "android",
-        "version_name": ProjectSettings.get_setting("application/config/version", ""),
-        "client_uuid": str(Configuration.get_val("clientuuid")),
+        "version_name": appVersion,
+        "client_uuid": str(Configuration.get_val("APP", "client_uuid")),
         "gray_target": "x123123"
     })
     var _code: int = res[0]; var _msg: String = res[1]; var _data: Dictionary = res[2]
@@ -27,11 +28,9 @@ func _ready() -> void:
         get_tree().call_deferred("change_scene_to_file", "res://scenes/home/Home.tscn")
         return
 
-    var package: Dictionary = _data.get("package", {}) # 资源包升级
-    var program: Dictionary = _data.get("program", {}) # 程序升级
-
-
-    match int(program.get("upgrade_mode", 0)):
+    _upgrade_mode = int(_data.get("upgrade_mode", 0))
+    print("升级模式: %d" % _upgrade_mode)
+    match _upgrade_mode:
         1, 3:
             # 强制升级 / 提示升级 -> 把检查结果挂到 root，交给 Upgrade 场景读取
             pass
@@ -41,7 +40,6 @@ func _ready() -> void:
         _:
             get_tree().call_deferred("change_scene_to_file", "res://scenes/auth/Login.tscn")
 
-    _upgrade_mode = int(program.get("upgrade_mode", 0))
     if _upgrade_mode == 2:
         print("无需升级，直接跳转到登录界面")
         get_tree().call_deferred("change_scene_to_file", "res://scenes/auth/Login.tscn")
@@ -50,11 +48,12 @@ func _ready() -> void:
     _release_url = _data.get("release_url", "")
 
     title_label.text = _data.get("title", "")
-    intro_label.text = "[%s]%s" % [ProjectSettings.get_setting("application/config/version", ""), _data.get("intro", "")]
+    intro_label.text = "[%s]%s" % [appVersion, _data.get("intro", "")]
     status_label.text = ""
 
     cancel_button.visible = (_upgrade_mode != 1)
     if _upgrade_mode == 1:
+        print("强制升级模式，阻止返回操作")
         get_tree().root.set_meta("_block_back", true)
 
     confirm_button.pressed.connect(_on_confirm_pressed)

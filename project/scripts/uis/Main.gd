@@ -5,7 +5,7 @@ extends Node
 
 func _ready() -> void:
     print("Main.gd _ready() called.")
-    print("Client UUID:", Configuration.get_val("clientuuid"))
+    print("Client UUID:", Configuration.get_val("APP", "client_uuid"))
 
 
     var version_name = ProjectSettings.get_setting("application/config/version", "")

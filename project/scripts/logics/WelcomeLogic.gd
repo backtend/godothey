@@ -10,7 +10,7 @@ static func initial() -> String:
         "project_tag": "godothey",
         "device_type": "android",
         "version_name": ProjectSettings.get_setting("application/config/version", ""),
-        "client_uuid": str(Configuration.get_val("clientuuid")),
+        "client_uuid": str(Configuration.get_val("APP", "client_uuid")),
         "gray_target": "x123123"
     })
     var _code: int = res[0]; var _msg: String = res[1]; var _data: Dictionary = res[2]
@@ -22,14 +22,14 @@ static func initial() -> String:
     print("初始化JSON解析成功的1: %s" % _data)
 
     # 是否需要升级
-    if _data.get("goto_upgrade", false):
-        print("需要升级，即将前往升级中心")
-        return "res://scenes/upgrade/Upgrade.tscn"
+    if _data.get("goto_scene", 'home_scene') == "checking_upgrade":
+        print("即将前往升级软体程序")
+        return "res://scenes/checking/Upgrade.tscn"
         
-    # 是否登录状态 
-    if _data.get("current_login", false):
-        print("用户已登录，跳转到主界面")
-        return "res://scenes/home/Home.tscn"
+    # 是否需要更新
+    if _data.get("goto_scene", 'home_scene') == "checking_update":
+        print("即将前往升级资料片")
+        return "res://scenes/checking/Update.tscn"
         
     print("用户未登录，跳转到登录界面")
     return "res://scenes/auth/Login.tscn"
