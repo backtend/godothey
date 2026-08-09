@@ -144,11 +144,12 @@ def upload_to_oss(localFile, objectName, contentType="application/zip"):
     else:
         raise RuntimeError(f"OSS Upload failed [{resp.status_code}]: {resp.text}")
 
-def check_version_allow(versionName) -> bool:
+def check_submit_allow(versionName, sha256:str=None) -> bool:
     payload = {
         "project_tag": PROJECT_TAG,
         "device_type": DEVICE_TYPE,
         "version_name": versionName,
+        "hash": sha256,
     }
     return httppost("/zzmdt/builded/allowapp",payload)
 
@@ -173,7 +174,7 @@ def create_version_record(versionName, zipInfo, distInfo):
         "gray_target": BUILDED_CLIENT_UUID,
         "remark": "Auto Build",
     }
-    return httppost("/zzmdt/builded/app", payload)
+    return httppost("/zzmdt/builded/uploadapp", payload)
 
 
 def httppost(path, data, headers=None):
@@ -184,6 +185,7 @@ def httppost(path, data, headers=None):
     headerNew = {
         "Authorization": f"Token {token}",
         "Content-Type": "application/json",
+        "Accept": "application/json",
     }
 
     url = SERVER_BASE_URL + path
@@ -219,9 +221,9 @@ if __name__ == "__main__":
 
     # 检查服务器是否允许当前project_tag-device_type-version_name的版本上报
     # 这里可以添加一个请求到服务器的检查逻辑，如果不允许，则直接退出
-    code, data, msg, rid = check_version_allow(versionName)
+    code, data, msg, rid = check_submit_allow(versionName)
     if code != 200:
-        print(f"Version {versionName} is not valid for upload. Exiting.")
+        print(f"Version {versionName} notAllow:" + msg)
         sys.exit(1)
 
     # 1. 更新 project.godot 和 export_presets.cfg
@@ -237,7 +239,6 @@ if __name__ == "__main__":
     build_godot_app("AndroidHello", distPath)
     print(f"✔ Godot APK Exported: {distPath}, Size: {distPath.stat().st_size / (1024 * 1024):.2f} Mb")
 
-
     # 2. 压缩成 ZIP
     zipName = f"{PROJECT_ALIAS}-{versionName}.zip"
     zipPath = OUTPUT_PATH / zipName
@@ -248,6 +249,11 @@ if __name__ == "__main__":
     distSign = sign_file_rsa(distPath)
     zipSize = zipPath.stat().st_size
     distSize = distPath.stat().st_size
+    print(f"Checking version allow for hash: {sha256}")
+    code, data, msg, rid = check_submit_allow(versionName, sha256)
+    if code != 200:
+        print(f"responseError:" + msg)
+        sys.exit(1)
 
     # 4. 上传至阿里云 OSS (原生 PUT 请求，免 SDK)
     print("=" * 60)

@@ -19,7 +19,7 @@ static func initial() -> String:
         print("初始化请求发起失败: %s" % _msg)
         return "res://scenes/home/Home.tscn"
 
-    print("初始化JSON解析成功: %s" % _data)
+    print("初始化JSON解析成功的: %s" % _data)
 
     # 是否需要升级
     if _data.get("goto_upgrade", false):

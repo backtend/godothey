@@ -119,11 +119,12 @@ def upload_to_oss(localFile, objectName, contentType="application/octet-stream")
     else:
         raise RuntimeError(f"OSS Upload failed [{resp.status_code}]: {resp.text}")
 
-def check_version_allow(versionName) -> bool:
+def check_submit_allow(versionName, sha256:str=None) -> bool:
     payload = {
         "project_tag": PROJECT_TAG,
         "device_type": DEVICE_TYPE,
         "version_name": versionName,
+        "hash": sha256,
     }
     return httppost("/zzmdt/builded/allowpck", payload)
 
@@ -144,7 +145,7 @@ def create_pck_record(versionName, pckInfo):
         "gray_target": BUILDED_CLIENT_UUID,
         "remark": "Auto Build",
     }
-    return httppost("/zzmdt/builded/pck", payload)
+    return httppost("/zzmdt/builded/uploadpck", payload)
 
 
 def httppost(path, data, headers=None):
@@ -155,6 +156,7 @@ def httppost(path, data, headers=None):
     headerNew = {
         "Authorization": f"Token {token}",
         "Content-Type": "application/json",
+        "Accept": "application/json",
     }
 
     url = SERVER_BASE_URL + path
@@ -186,9 +188,10 @@ if __name__ == "__main__":
     OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
 
     # 检查服务器是否允许当前project_tag-device_type-version_name的版本上报
-    code, data, msg, rid = check_version_allow(versionName)
+    print(f"Checking version allow for: {versionName}")
+    code, data, msg, rid = check_submit_allow(versionName)
     if code != 200:
-        print(f"Version {versionName} is not valid for upload. Exiting.")
+        print(f"responseError: {versionName} notValidForUpload:" + msg)
         sys.exit(1)
 
     # 3. Godot 导出 PCK
@@ -202,6 +205,12 @@ if __name__ == "__main__":
     sha256 = sha256_file(pckPath)
     pckSign = sign_file_rsa(pckPath)
     pckSize = pckPath.stat().st_size
+    print(f"Checking version allow for hash: {sha256}")
+    code, data, msg, rid = check_submit_allow(versionName, sha256)
+    if code != 200:
+        print(f"responseError:" + msg)
+        sys.exit(1)
+
 
     # 5. 上传至阿里云 OSS (原生 PUT 请求，免 SDK)
     print("=" * 60)
@@ -225,5 +234,10 @@ if __name__ == "__main__":
         "sign": pckSign,
     })
     print(f"Create Version Record: code={code}, data={data}, msg={msg}, rid={rid}")
+    if code != 200:
+        print(f"responseError:" + msg)
+        sys.exit(1)
 
     print(f"Total Elapsed: {time.time() - startTimestamp:.2f}s")
+
+
