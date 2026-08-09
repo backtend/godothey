@@ -11,7 +11,6 @@ func _ready() -> void:
     var version_name = ProjectSettings.get_setting("application/config/version", "")
     if version_label:
         version_label.text = "Version: %s" % version_name
-
         
     await get_tree().create_timer(1.0).timeout
     
@@ -21,10 +20,10 @@ func _ready() -> void:
 
     
 # func _after_upgrade_check() -> void:
-#     Auth.check_login_success.connect(_go_main)
-#     Auth.check_login_failed.connect(_go_login)
-#     if Auth.has_token():
-#         Auth.check_login()
+#     Authy.check_login_success.connect(_go_main)
+#     Authy.check_login_failed.connect(_go_login)
+#     if Authy.has_token():
+#         Authy.check_login()
 #     else:
 #         _go_login()
 

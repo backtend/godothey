@@ -13,8 +13,8 @@ func _ready() -> void:
     login_button.pressed.connect(_on_login_pressed)
     guest_button.pressed.connect(_on_guest_pressed)
 
-    Auth.login_success.connect(_on_login_success)
-    Auth.login_failed.connect(_on_login_failed)
+    Authy.login_success.connect(_on_login_success)
+    Authy.login_failed.connect(_on_login_failed)
 
 
 func _on_login_pressed() -> void:
@@ -28,7 +28,7 @@ func _on_login_pressed() -> void:
     login_button.disabled = true
     error_label.text = "Signing in..."
 
-    Auth.login(u, p)
+    Authy.login(u, p)
 
 
 func _on_guest_pressed() -> void:
