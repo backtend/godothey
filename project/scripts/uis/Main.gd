@@ -7,6 +7,10 @@ func _ready() -> void:
     print("Main.gd _ready() called.")
     print("Client UUID:", Configuration.get_val("APP", "client_uuid"))
 
+    # 上次运行时间记录-当前手机时间的 年月日时分秒
+    var last_run_time: String = Configuration.get_val("APP", "last_run_time", "")
+    Configuration.set_val("APP", "last_run_time", Time.get_datetime_string_from_system())
+    print("Last run time:", last_run_time)
 
     var version_name = ProjectSettings.get_setting("application/config/version", "")
     if version_label:

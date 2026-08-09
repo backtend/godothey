@@ -12,6 +12,7 @@ extends Control
 const PCK_DIR := "user://update_pcks/"
 const MANIFEST_PATH := "user://update_manifest.json"
 
+var _rsp_data: Dictionary = {}
 var _update_mode: int = 0
 var _packages: Array = []
 
@@ -34,12 +35,13 @@ func _ready() -> void:
     var res: Array = await HttpMdtLib.doPost("/index/checking/update", {
         "project_tag": "godothey",
         "device_type": "android",
-        "version_name": Configuration.get_val("APP", "last_version_name", "0.0.0"),
+        "version_name": Configuration.get_val("APP", "package_latest_version_name", "0.0.0"),
         "client_uuid": str(Configuration.get_val("APP", "client_uuid")),
         "gray_target": "x123123"
     })
     var _code: int = res[0]; var _msg: String = res[1]; var _data: Dictionary = res[2]
     print("升级检查JSON解析: %s %s %s" % [_code, _msg, _data])
+    _rsp_data = _data
 
     if _code != 200:
         push_warning(_msg)
@@ -210,11 +212,12 @@ func _on_update_failed(msg: String) -> void:
 
 
 func _on_all_packages_applied() -> void:
-    Configuration.set_val("APP", "package_latest_version_name", str(_current_pkg.get("latest_version_name", "0.0.0")))
-    Configuration.set_val("APP", "package_latest_version_code", str(_current_pkg.get("latest_version_code", 0)))
+    Configuration.set_val("APP", "package_latest_version_name", str(_rsp_data.get("latest_version_name", "0.0.0")))
+    Configuration.set_val("APP", "package_latest_version_code", str(_rsp_data.get("latest_version_code", 0)))
     status_label.text = "更新完成，即将重启应用..."
     detail_label.text = ""
     progress_bar.value = 100
+    print("所有资源包已下载并应用成功，更新完成，即将重启应用." + _rsp_data.get("latest_version_name", "0.0.0"))
     await get_tree().create_timer(0.8).timeout
     _restart_app()
 
