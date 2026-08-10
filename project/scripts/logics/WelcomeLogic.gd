@@ -16,7 +16,7 @@ static func initial() -> String:
     var _code: int = res[0]; var _msg: String = res[1]; var _data: Dictionary = res[2]
     
     if _code != 200:
-        print("初始化请求发起失败: %s" % _msg)
+        print("初始化请求发起失败直接进入首页: %s" % _msg)
         return "res://scenes/home/Home.tscn"
 
     print("初始化JSON解析成功的1: %s" % _data)

@@ -37,14 +37,14 @@ theme_override_constants/separation = 20
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 36
-text = "发现新版本"
+text = "发现新版本2222222222222"
 horizontal_alignment = 1
 
 [node name="IntroLabel" type="Label" parent="MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "更新说明..."
+text = "程序program 更新说明..."
 autowrap_mode = 3
 
 [node name="Spacer1" type="Control" parent="MarginContainer/VBoxContainer"]

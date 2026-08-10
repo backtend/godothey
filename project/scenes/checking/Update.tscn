@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://eeog83yhom2r"]
 
-[ext_resource type="Script" uid="uid://crcwmhhtje0ss" path="res://scripts/uis/checking/Update.gd" id="1_6bmsu"]
+[ext_resource type="Script" uid="uid://dah63g5q71x8h" path="res://scripts/uis/checking/Update.gd" id="1_6bmsu"]
 
-[node name="Control" type="Control"]
+[node name="Control" type="Control" unique_id=88788732]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,10 +11,10 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_6bmsu")
 
-[node name="HTTPRequest" type="HTTPRequest" parent="."]
+[node name="HTTPRequest" type="HTTPRequest" parent="." unique_id=107979115]
 unique_name_in_owner = true
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=700879049]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -32,63 +32,62 @@ theme_override_constants/margin_top = 40
 theme_override_constants/margin_right = 40
 theme_override_constants/margin_bottom = 40
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=795089432]
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer" unique_id=126186555]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 36
-text = "发现新版本"
+text = "checking..."
 horizontal_alignment = 1
 
-[node name="IntroLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="IntroLabel" type="Label" parent="MarginContainer/VBoxContainer" unique_id=324031131]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "更新说明..."
+text = "checking for update right now..."
 autowrap_mode = 3
 
-[node name="Spacer1" type="Control" parent="MarginContainer/VBoxContainer"]
+[node name="Spacer1" type="Control" parent="MarginContainer/VBoxContainer" unique_id=1709268034]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 
-[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/VBoxContainer"]
+[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/VBoxContainer" unique_id=1243788486]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
-show_percentage = true
 
-[node name="DetailLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="DetailLabel" type="Label" parent="MarginContainer/VBoxContainer" unique_id=2133440711]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 
-[node name="StatusLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+[node name="StatusLabel" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1186274035]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
 
-[node name="Spacer2" type="Control" parent="MarginContainer/VBoxContainer"]
+[node name="Spacer2" type="Control" parent="MarginContainer/VBoxContainer" unique_id=1246898546]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 
-[node name="ButtonRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="ButtonRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=863862440]
 layout_mode = 2
-alignment = 1
 theme_override_constants/separation = 30
+alignment = 1
 
-[node name="ConfirmButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonRow"]
+[node name="ConfirmButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonRow" unique_id=1576430279]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(160, 60)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "立即更新"
 
-[node name="CancelButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonRow"]
+[node name="CancelButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonRow" unique_id=2087718082]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(160, 60)
 layout_mode = 2
