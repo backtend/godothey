@@ -11,14 +11,15 @@ config_version=5
 [application]
 
 config/name="GODOTHEY"
-config/version="1.811.25"
-run/main_scene="uid://b2e5g0ixxl0fv"
+config/version="1.812.21"
+run/main_scene="uid://bootstrap0001"
 config/features=PackedStringArray("4.6", "Mobile")
+boot_splash/bg_color=Color(0.036384057, 0.3841699, 0.59965336, 1)
 config/icon="res://icon.svg"
 
 [autoload]
 
-Bootstrap="*uid://fro7b6r63sdp"
+Startup="*uid://cjmvna4twpwqq"
 Authy="*uid://3qhtplm17ads"
 Configuration="*uid://dt4xjxocbvk1c"
 

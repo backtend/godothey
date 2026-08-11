@@ -14,7 +14,7 @@ texture = ExtResource("1_ig7tw")
 script = ExtResource("2_0xm2m")
 
 [node name="girl" parent="." unique_id=780432313 instance=ExtResource("3_h2yge")]
-position = Vector2(677, 862)
+position = Vector2(1583, 570)
 scale = Vector2(1.0889488, 1.0889488)
 
 [node name="player" parent="." unique_id=1037054095 instance=ExtResource("4_1bvp3")]

@@ -222,6 +222,7 @@ if __name__ == "__main__":
     print(f"Version  : {versionName} (Code: {versionCode})")
     print(f"PCK      : {pckName}")
     print(f"PCK URL  : {downloadPckUrl}")
+    print(f"PCK Size : {pckSize/(1024*1024):.2f} Mb")
     print(f"SHA256   : {sha256}")
     print("=" * 60)
 

@@ -11,9 +11,6 @@ extends Control
 
 const PCK_DIR := "user://update_pcks/"
 const MANIFEST_PATH := "user://update_manifest.json"
-const MAIN_SCENE_PATH := "res://scenes/Main.tscn"
-# 除 Main.tscn 外,还有哪些"早于本场景加载"的资源需要在更新后强制刷新缓存,按需追加
-const EXTRA_RELOAD_PATHS: Array[String] = []
 
 var _rsp_data: Dictionary = {}
 var _update_mode: int = 0
@@ -40,7 +37,7 @@ func _ready() -> void:
 	var _code: int = res[0]; var _msg: String = res[1]; var _data: Dictionary = res[2]
 	_rsp_data = _data
 	if _code != 200:
-		push_warning(_msg)
+		push_warning("[Update] 检查更新接口失败: code=%d msg=%s" % [_code, _msg])
 		get_tree().call_deferred("change_scene_to_file", "res://scenes/home/Home.tscn")
 		return
 
@@ -61,7 +58,7 @@ func _ready() -> void:
 		3:
 			cancel_button.visible = true
 		_:
-			push_warning("未知的 update_mode: %d,按可选升级处理" % _update_mode)
+			push_warning("[Update] 未知的 update_mode: %d,按可选升级处理" % _update_mode)
 			cancel_button.visible = true
 
 	confirm_button.pressed.connect(_on_confirm_pressed)
@@ -138,12 +135,14 @@ func _download_next() -> void:
 	var err := http_request.request(pkg.get("pck_url", ""))
 	if err != OK:
 		_downloading = false
+		push_error("[Update] 下载请求发起失败: url=%s err=%d" % [pkg.get("pck_url", ""), err])
 		_on_update_failed("下载请求发起失败,错误码: %d" % err)
 
 
 func _on_request_completed(result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
 	_downloading = false
 	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
+		push_error("[Update] 下载失败: result=%d code=%d pkg=%s" % [result, response_code, _current_pkg.get("pck_name", "")])
 		_on_update_failed("下载失败 (result=%d, code=%d),请检查网络后重试" % [result, response_code])
 		return
 
@@ -152,6 +151,7 @@ func _on_request_completed(result: int, response_code: int, _headers: PackedStri
 	var expected_hash: String = str(_current_pkg.get("pck_hash", "")).strip_edges()
 
 	if not FileAccess.file_exists(dest_path):
+		push_error("[Update] 下载完成但文件不存在: %s" % dest_path)
 		_on_update_failed("下载完成但文件不存在: %s" % dest_path)
 		return
 
@@ -159,11 +159,14 @@ func _on_request_completed(result: int, response_code: int, _headers: PackedStri
 		status_label.text = "正在校验更新包..."
 		var actual_hash := _sha256_hex(dest_path)
 		if actual_hash.to_lower() != expected_hash.to_lower():
-			push_warning("哈希校验失败: 期望 %s, 实际 %s" % [expected_hash, actual_hash])
+			push_error("[Update] 哈希校验失败: pkg=%s 期望=%s 实际=%s" % [pck_name, expected_hash, actual_hash])
 			_on_update_failed("更新包校验失败,可能已损坏,请重试")
 			return
 
+	# 挂载到虚拟文件系统,主要用于校验 pck 本身是否有效可加载;
+	# 真正让新资源生效依赖下次冷启动时 AutoLoad 重新挂载,这里不做热替换。
 	if not ProjectSettings.load_resource_pack(dest_path, true):
+		push_error("[Update] 加载资源包失败: %s" % dest_path)
 		_on_update_failed("加载资源包失败: %s" % pck_name)
 		return
 
@@ -185,27 +188,18 @@ func _on_update_failed(msg: String) -> void:
 func _on_all_packages_applied() -> void:
 	Configuration.set_val("APP", "package_latest_version_name", str(_rsp_data.get("latest_version_name", "0.0.0")))
 	Configuration.set_val("APP", "package_latest_version_code", str(_rsp_data.get("latest_version_code", 0)))
-	status_label.text = "更新完成,正在应用..."
+	status_label.text = "更新完成,即将重新打开..."
 	detail_label.text = ""
 	progress_bar.value = 100
-	await get_tree().create_timer(0.5).timeout
-	_apply_update_and_continue()
+	await get_tree().create_timer(0.8).timeout
+	_hard_restart()
 
 
-# 新 pck 已经通过 load_resource_pack 挂载到虚拟文件系统了,
-# 但 Main.tscn 这类"早于本场景"加载的资源在本进程内已被缓存成旧版本,
-# 用 CACHE_MODE_REPLACE 强制丢弃旧缓存、重新读取,免去重启整个 App 的需求
-# (这一步也顺带解决了 Android 上 quit() 后无法自动重新打开的问题)。
-func _apply_update_and_continue() -> void:
-	for path in EXTRA_RELOAD_PATHS:
-		ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_REPLACE)
-	var main_scene: PackedScene = ResourceLoader.load(MAIN_SCENE_PATH, "", ResourceLoader.CACHE_MODE_REPLACE)
-	get_tree().call_deferred("change_scene_to_packed", main_scene)
-
-
-# 可选:如果某次更新改动了 AutoLoad 单例脚本自身的逻辑代码,
-# 上面的原地刷新是无法热替换单例实例的,这种情况才需要真正重启进程。
-# 桌面平台可行;Android 目前只能提示用户手动重新打开(Godot 无内置重启 API)。
+# 新 pck 已经写入本地并记录进 manifest,但让新资源真正生效依赖
+# 冷启动时 AutoLoad(挂载顺序最靠前的那个)重新 load_resource_pack。
+# 同进程内用 CACHE_MODE_REPLACE 热替换 Main.tscn 在部分导出配置下会
+# 因为该资源属于内置基础包、无法被重新 open 而报错,故不采用该方案,
+# 统一走"重启进程"路径,桌面端自动重启,Android 端提示手动重开。
 func _hard_restart() -> void:
 	match OS.get_name():
 		"Windows", "macOS", "Linux", "X11":
@@ -213,6 +207,7 @@ func _hard_restart() -> void:
 			get_tree().quit()
 		_:
 			status_label.text = "更新完成,请手动重新打开应用"
+			await get_tree().create_timer(1.5).timeout
 			get_tree().quit()
 
 
@@ -243,11 +238,13 @@ func _load_manifest() -> Dictionary:
 		return {"applied": []}
 	var f := FileAccess.open(MANIFEST_PATH, FileAccess.READ)
 	if f == null:
+		push_warning("[Update] 无法打开更新清单文件: %s (err=%d)" % [MANIFEST_PATH, FileAccess.get_open_error()])
 		return {"applied": []}
 	var text := f.get_as_text()
 	f.close()
 	var parsed = JSON.parse_string(text)
 	if typeof(parsed) != TYPE_DICTIONARY:
+		push_warning("[Update] 更新清单文件格式错误,已忽略: %s" % MANIFEST_PATH)
 		return {"applied": []}
 	if not parsed.has("applied"):
 		parsed["applied"] = []
@@ -257,7 +254,7 @@ func _load_manifest() -> Dictionary:
 func _save_manifest(manifest: Dictionary) -> void:
 	var f := FileAccess.open(MANIFEST_PATH, FileAccess.WRITE)
 	if f == null:
-		push_warning("无法写入更新清单文件")
+		push_error("[Update] 无法写入更新清单文件: %s (err=%d)" % [MANIFEST_PATH, FileAccess.get_open_error()])
 		return
 	f.store_string(JSON.stringify(manifest))
 	f.close()
@@ -268,6 +265,7 @@ func _save_manifest(manifest: Dictionary) -> void:
 func _sha256_hex(path: String) -> String:
 	var f := FileAccess.open(path, FileAccess.READ)
 	if f == null:
+		push_error("[Update] 计算哈希时无法打开文件: %s (err=%d)" % [path, FileAccess.get_open_error()])
 		return ""
 	var ctx := HashingContext.new()
 	ctx.start(HashingContext.HASH_SHA256)

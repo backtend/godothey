@@ -39,6 +39,7 @@ theme_override_constants/separation = 20
 [node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer" unique_id=126186555]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.09019608, 1, 1)
 theme_override_font_sizes/font_size = 36
 text = "checking..."
 horizontal_alignment = 1
