@@ -1,9 +1,20 @@
 [gd_scene format=3 uid="uid://b2e5g0ixxl0fv"]
 
 [ext_resource type="Script" uid="uid://b8tae5aspq1c8" path="res://scripts/uis/common/Welcome.gd" id="1_ig7tw"]
+[ext_resource type="Texture2D" uid="uid://bwepijoxuiomu" path="res://assets/images/godothey.png" id="2_c5y1m"]
 
-[node name="Node" type="Node" unique_id=1256974477]
+[node name="Welcome" type="Node" unique_id=1256974477]
 script = ExtResource("1_ig7tw")
+
+[node name="Background" type="TextureRect" parent="." unique_id=1896537486]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_c5y1m")
+expand_mode = 1
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1536970672]
 
@@ -13,26 +24,25 @@ anchor_left = 0.25
 anchor_top = 0.25
 anchor_right = 0.734
 anchor_bottom = 0.75
-offset_left = -482.0
-offset_top = -270.0
-offset_right = 510.71997
-offset_bottom = 270.0
-color = Color(0.129412, 0.203922, 0.321569, 1)
+offset_left = -98.0
+offset_top = 414.0
+offset_right = 116.47998
+offset_bottom = 170.0
+color = Color(0.12941177, 0.20392157, 0.32156864, 0.49019608)
 
 [node name="Label" type="Label" parent="CanvasLayer/Panel" unique_id=1639540794]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 99.0
-offset_top = 81.0
-offset_right = -85.0
-offset_bottom = -200.0
+offset_left = 96.0
+offset_top = 6.0
+offset_right = -114.0
+offset_bottom = -36.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 50
-text = "AHi! 我在这里 👋=v 在gz
-蔡畅-晓璇"
+theme_override_font_sizes/font_size = 29
+text = "AHi! 我在这里 👋=CC-XX"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -43,12 +53,12 @@ anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -6.0
-offset_top = -86.0
-offset_right = -6.0
-offset_bottom = -28.0
+offset_left = 11.0
+offset_top = -47.0
+offset_right = 11.0
+offset_bottom = 11.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_font_sizes/font_size = 41
+theme_override_font_sizes/font_size = 32
 text = "v1.0.0"
 horizontal_alignment = 1

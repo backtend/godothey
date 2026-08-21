@@ -11,23 +11,24 @@ config_version=5
 [application]
 
 config/name="GODOTHEY"
-config/version="1.812.21"
+config/version="1.821.132"
 run/main_scene="uid://bootstrap0001"
 config/features=PackedStringArray("4.6", "Mobile")
 boot_splash/bg_color=Color(0.036384057, 0.3841699, 0.59965336, 1)
+boot_splash/show_image=false
 config/icon="res://icon.svg"
 
 [autoload]
 
-Startup="*uid://cjmvna4twpwqq"
 Authy="*uid://3qhtplm17ads"
 Configuration="*uid://dt4xjxocbvk1c"
 
 [display]
 
-window/size/viewport_width=1920
-window/size/viewport_height=1080
+window/size/viewport_width=1280
+window/size/viewport_height=720
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 
 [gui]
 

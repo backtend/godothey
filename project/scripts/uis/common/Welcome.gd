@@ -16,7 +16,7 @@ func _ready() -> void:
     if version_label:
         version_label.text = "Version: %s" % version_name
         
-    await get_tree().create_timer(3.0).timeout
+    await get_tree().create_timer(6.0).timeout
     
     var toscene := await WelcomeLogic.initial()
     print("初始化完成，跳转到：", toscene)

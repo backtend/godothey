@@ -30,75 +30,77 @@ var _spinner_radius: float = 28.0
 
 
 func _ready() -> void:
-	_spinner_center = get_viewport_rect().size / 2.0
-	_spinner_center.y -= 40.0
-	set_process(true)
+    _spinner_center = get_viewport_rect().size / 2.0
+    _spinner_center.y -= 40.0
+    set_process(true)
 
-	# 先等一帧,让 loading 画面真正渲染出来,避免白屏闪一下
-	await get_tree().process_frame
-	await get_tree().process_frame
+    # 先等一帧,让 loading 画面真正渲染出来,避免白屏闪一下
+    await get_tree().process_frame
+    await get_tree().process_frame
 
-	_apply_local_pcks()
-	await _goto_target_scene()
+    _apply_local_pcks()
+    # 休息2秒
+    # await get_tree().create_timer(6.0).timeout
+    await _goto_target_scene()
 
 
 func _process(delta: float) -> void:
-	_spin_angle += delta * 4.0
-	_pulse_time += delta
-	title_label.modulate.a = 0.75 + 0.25 * sin(_pulse_time * 2.0)
-	queue_redraw()
+    _spin_angle += delta * 4.0
+    _pulse_time += delta
+    title_label.modulate.a = 0.75 + 0.25 * sin(_pulse_time * 2.0)
+    queue_redraw()
 
 
 func _draw() -> void:
-	var segments := 24
-	for i in range(segments):
-		var t := float(i) / float(segments)
-		var a := _spin_angle + t * TAU
-		var alpha := 1.0 - t
-		draw_arc(_spinner_center, _spinner_radius, a, a + 0.18, 8, Color(0.35, 0.75, 1.0, alpha), 4.0, true)
+    var segments := 24
+    for i in range(segments):
+        var t := float(i) / float(segments)
+        var a := _spin_angle + t * TAU
+        var alpha := 1.0 - t
+        draw_arc(_spinner_center, _spinner_radius, a, a + 0.18, 8, Color(0.35, 0.75, 1.0, alpha), 4.0, true)
 
 
 func _set_status(text: String) -> void:
-	status_label.text = text
-	print(text)
+    status_label.text = text
+    print(text)
 
 
 func _apply_local_pcks() -> void:
-	_set_status("正在检查本地资源包...")
-	if not FileAccess.file_exists(MANIFEST_PATH):
-		push_warning("更新清单文件不存在,无法加载本地资源包")
-		return
-	var f := FileAccess.open(MANIFEST_PATH, FileAccess.READ)
-	if f == null:
-		push_warning("无法打开更新清单文件,无法加载本地资源包")
-		return
-	var parsed = JSON.parse_string(f.get_as_text())
-	f.close()
+    _set_status("正在检查本地资源包...")
+    if not FileAccess.file_exists(MANIFEST_PATH):
+        push_warning("更新清单文件不存在,无法加载本地资源包")
+        return
+    var f := FileAccess.open(MANIFEST_PATH, FileAccess.READ)
+    if f == null:
+        push_warning("无法打开更新清单文件,无法加载本地资源包")
+        return
+    var parsed = JSON.parse_string(f.get_as_text())
+    f.close()
 
-	if typeof(parsed) != TYPE_DICTIONARY:
-		push_warning("更新清单文件格式错误,无法加载本地资源包")
-		return
+    if typeof(parsed) != TYPE_DICTIONARY:
+        push_warning("更新清单文件格式错误,无法加载本地资源包")
+        return
 
-	var applied: Array = parsed.get("applied", [])
-	for i in range(applied.size()):
-		var entry = applied[i]
-		var pck_name: String = entry.get("pck_name", "")
-		if pck_name == "":
-			continue
-		var path := PCK_DIR + pck_name
-		_set_status("正在加载资源包 (%d/%d): %s" % [i + 1, applied.size(), pck_name])
-		if FileAccess.file_exists(path):
-			if not ProjectSettings.load_resource_pack(path, true):
-				push_warning("加载本地资源包失败: %s" % path)
-		else:
-			push_warning("本地资源包缺失,可能需要重新下载: %s" % path)
-	_set_status("资源加载完成")
+    var applied: Array = parsed.get("applied", [])
+    for i in range(applied.size()):
+        var entry = applied[i]
+        var pck_name: String = entry.get("pck_name", "")
+        if pck_name == "":
+            continue
+        var path := PCK_DIR + pck_name
+        _set_status("正在加载资源包 (%d/%d): %s" % [i + 1, applied.size(), pck_name])
+        if FileAccess.file_exists(path):
+            if not ProjectSettings.load_resource_pack(path, true):
+                push_warning("加载本地资源包失败: %s" % path)
+        else:
+            push_warning("本地资源包缺失,可能需要重新下载: %s" % path)
+    _set_status("资源加载完成")
 
 
 func _goto_target_scene() -> void:
-	_set_status("正在进入游戏...")
-	await get_tree().create_timer(0.2).timeout
-	var err := get_tree().change_scene_to_file(target_scene)
-	if err != OK:
-		push_error("跳转入口场景失败: %s (err=%d)" % [target_scene, err])
-		_set_status("启动失败,请重启游戏")
+    _set_status("正在进入游戏...")
+    await get_tree().create_timer(0.2).timeout
+    var err := get_tree().change_scene_to_file(target_scene)
+    if err != OK:
+        push_error("跳转入口场景失败: %s (err=%d)" % [target_scene, err])
+        _set_status("启动失败,请重启游戏")
