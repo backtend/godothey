@@ -5,18 +5,28 @@ extends Node
 
 func _ready() -> void:
     print("Main.gd _ready() called.")
-    print("Client UUID:", Configuration.get_val("APP", "client_uuid"))
+    print("Client UUID:", Configuration.getUserValue("APP", "client_uuid"))
 
     # 上次运行时间记录-当前手机时间的 年月日时分秒
-    var last_run_time: String = Configuration.get_val("APP", "last_run_time", "")
-    Configuration.set_val("APP", "last_run_time", Time.get_datetime_string_from_system())
+    var last_run_time: String = Configuration.getUserValue("APP", "last_run_time", "")
+    Configuration.setUserValue("APP", "last_run_time", Time.get_datetime_string_from_system())
     print("Last run time:", last_run_time)
 
-    var version_name = ProjectSettings.get_setting("application/config/version", "")
+    var appVersionName = ProjectSettings.get_setting("application/config/version", "")
+    var appVersionCode = ProjectSettings.get_setting("application/config/version_code", "")
+    var build = ProjectSettings.get_setting("application/config/build", "")
     if version_label:
-        version_label.text = "Version: %s" % version_name
-        
-    await get_tree().create_timer(6.0).timeout
+        version_label.text = "App-%s " % [appVersionName]
+        version_label.text += "Res-%s " % [Configuration.getResValue("PACKAGE", "build_pck_vname", "0.0.0")]
+    
+    print("APP UUID==:", Configuration.getUserValue("APP", "client_uuid"))
+    print("APP Version Name=", appVersionName)
+    print("APP Version Code=", appVersionCode)
+    print("APP Version Build=", build)
+    print("PCK getResValue build_pck_vname:", Configuration.getResValue("PACKAGE", "build_pck_vname"))
+    print("PCK getResValue build_pck_vcode:", Configuration.getResValue("PACKAGE", "build_pck_vcode"))
+
+    await get_tree().create_timer(EnvedLib.editor(1.0, 7.0)).timeout
     
     var toscene := await WelcomeLogic.initial()
     print("初始化完成，跳转到：", toscene)

@@ -61,17 +61,83 @@ def get_cmd_version_code(version_name):
         raise ValueError("Invalid version name format")
     return int(parts[0]) * 100000000 + int(parts[1]) * 10000 + int(parts[2])
 
+def get_preset_value(preset_name, config_name, group_name=""):
+    export_presets_path = PROJECT_ROOT / "export_presets.cfg"
+    if not export_presets_path.exists():
+        raise FileNotFoundError(f"export_presets.cfg not found: {export_presets_path}")
+    current_preset_index = None
+    preset_names = {}
+    target_group = None
+    with open(export_presets_path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    # 第一遍：找到 preset_name 对应的 preset index
+    for line in lines:
+        line = line.strip()
+
+        m = re.match(r"\[preset\.(\d+)\]$", line)
+        if m:
+            current_preset_index = m.group(1)
+            continue
+
+        if current_preset_index is not None:
+            m = re.match(r'name="([^"]*)"', line)
+            if m:
+                preset_names[current_preset_index] = m.group(1)
+
+    target_index = None
+
+    for index, name in preset_names.items():
+        if name == preset_name:
+            target_index = index
+            break
+
+    if target_index is None:
+        raise ValueError(
+            f'Preset not found: "{preset_name}"'
+        )
+
+    # 第二遍：读取指定 preset + group + config
+    target_group = f"preset.{target_index}.{group_name}"
+
+    if group_name == "":
+        target_group = f"preset.{target_index}"
+
+    in_target_group = False
+
+    for line in lines:
+        line = line.strip()
+
+        m = re.match(r"\[([^\]]+)\]$", line)
+        if m:
+            in_target_group = m.group(1) == target_group
+            continue
+
+        if not in_target_group:
+            continue
+
+        m = re.match(
+            rf'{re.escape(config_name)}="([^"]*)"',
+            line
+        )
+        if m:
+            return m.group(1)
+
+    raise ValueError(f'Config not found: preset="{preset_name}", group="{group_name}", config="{config_name}"')
 
 def build_godot_pck(preset, pckPath):
     """使用 Godot 直接导出 PCK 包（不再导出/签名 APK）"""
     print("\n" + "=" * 60 + "\nBuilding Godot PCK...\n" + "=" * 60)
+    env = os.environ.copy()
+    env["APP_ENVED"] = "prod"
     cmd = [GODOT_BIN, "--headless", "--export-pack", preset, str(pckPath)]
-    p = subprocess.Popen(cmd, cwd=PROJECT_ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    p = subprocess.Popen(cmd, cwd=PROJECT_ROOT, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     for line in p.stdout:
         print(line, end="")
     p.wait()
     if p.returncode != 0:
         raise RuntimeError("Godot export-pack failed!")
+    return p.returncode
 
 def sha256_file(file_path):
     h = hashlib.sha256()
@@ -138,6 +204,7 @@ def create_pck_record(versionName, pckInfo):
 
         "pck_url": pckInfo["url"],
         "pck_name": pckInfo["name"],
+        "pck_mode": pckInfo["mode"],
         "pck_size": pckInfo["size"],
         "pck_hash": pckInfo["sha256"],
         "pck_sign": pckInfo["sign"],
@@ -200,6 +267,9 @@ if __name__ == "__main__":
     print(f"Exporting Godot PCK to: {pckPath}")
     build_godot_pck("AndroidHello", pckPath)
     print(f"✔ Godot PCK Exported: {pckPath}, Size: {pckPath.stat().st_size / (1024 * 1024):.2f} Mb")
+    # 从preset获取的返回导出模式export_filter，比如： all_resources,scenes,resources,exclude,customized
+    exportFilter = get_preset_value("AndroidHello", "export_filter")
+    print(f"Export Filter: {exportFilter}")
 
     # 4. 哈希计算 & 签名
     sha256 = sha256_file(pckPath)
@@ -219,17 +289,19 @@ if __name__ == "__main__":
     downloadPckUrl = upload_to_oss(pckPath, objectPckFull, contentType="application/octet-stream")
 
     print("\n" + "=" * 60)
-    print(f"Version  : {versionName} (Code: {versionCode})")
-    print(f"PCK      : {pckName}")
-    print(f"PCK URL  : {downloadPckUrl}")
-    print(f"PCK Size : {pckSize/(1024*1024):.2f} Mb")
-    print(f"SHA256   : {sha256}")
+    print(f"Version     : {versionName} (Code: {versionCode})")
+    print(f"PCK Filter  : {exportFilter}")
+    print(f"PCK         : {pckName}")
+    print(f"PCK URL     : {downloadPckUrl}")
+    print(f"PCK Size    : {pckSize/(1024*1024):.2f} Mb")
+    print(f"SHA256      : {sha256}")
     print("=" * 60)
 
     # 6. 上报版本服务记录
     code, data, msg, rid = create_pck_record(versionName, pckInfo={
         "url": downloadPckUrl,
         "name": pckName,
+        "mode": exportFilter,
         "sha256": sha256,
         "size": pckSize,
         "sign": pckSign,

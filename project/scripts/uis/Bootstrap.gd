@@ -14,8 +14,8 @@ extends Control
 ## 请不要往这个场景里加业务逻辑,也不要改动它的节点结构/脚本路径,
 ## 保持它跨版本长期稳定 —— 它一旦出 bug,只能靠重新发包解决,热更新救不了它。
 
-const PCK_DIR := "user://update_pcks/"
-const MANIFEST_PATH := "user://update_manifest.json"
+const PCK_RESOURCE_DIR := "user://packaging/files/"
+const PCK_MANIFEST_PATH := "user://packaging/manifest.json"
 
 ## 加载完 pck 后真正要进入的入口场景,按你项目实际路径改
 @export_file("*.tscn") var target_scene: String = "res://scenes/common/Welcome.tscn"
@@ -30,17 +30,24 @@ var _spinner_radius: float = 28.0
 
 
 func _ready() -> void:
+    print("Bootstrap.gd _ready() called.")
     _spinner_center = get_viewport_rect().size / 2.0
     _spinner_center.y -= 40.0
     set_process(true)
 
     # 先等一帧,让 loading 画面真正渲染出来,避免白屏闪一下
     await get_tree().process_frame
-    await get_tree().process_frame
+    if EnvedLib.editor():
+        _set_status("编辑器调试：跳过本地热更新 PCK")
+        await _apply_local_pcks()
+    else:
+        _set_status("正在加载本地热更新 PCK...")
 
-    _apply_local_pcks()
-    # 休息2秒
-    # await get_tree().create_timer(6.0).timeout
+    print("获取到的RES构建时间: ", Configuration.getResValue("BUILDED", "build_utc_timestamp", -1))
+    print("获取到的RES资源版本号: ", Configuration.getResValue("PACKAGE", "build_pck_vcode", -1))
+    
+    print("本地热更新 PCK 加载完成,即将进入游戏...")
+    await get_tree().create_timer(EnvedLib.editor(0.3, 3.0)).timeout # 休息x秒
     await _goto_target_scene()
 
 
@@ -67,10 +74,10 @@ func _set_status(text: String) -> void:
 
 func _apply_local_pcks() -> void:
     _set_status("正在检查本地资源包...")
-    if not FileAccess.file_exists(MANIFEST_PATH):
+    if not FileAccess.file_exists(PCK_MANIFEST_PATH):
         push_warning("更新清单文件不存在,无法加载本地资源包")
         return
-    var f := FileAccess.open(MANIFEST_PATH, FileAccess.READ)
+    var f := FileAccess.open(PCK_MANIFEST_PATH, FileAccess.READ)
     if f == null:
         push_warning("无法打开更新清单文件,无法加载本地资源包")
         return
@@ -81,14 +88,21 @@ func _apply_local_pcks() -> void:
         push_warning("更新清单文件格式错误,无法加载本地资源包")
         return
 
+    var appVcode = Configuration.getResValue("PACKAGE", "build_pck_vcode")
     var applied: Array = parsed.get("applied", [])
     for i in range(applied.size()):
         var entry = applied[i]
         var pck_name: String = entry.get("pck_name", "")
-        if pck_name == "":
+        var pck_vcode: int = entry.get("pck_vcode", 0)
+        if pck_name == "" or pck_vcode <= 0:
+            push_warning("更新清单文件中第 %d 个条目格式错误,无法加载本地资源包" % (i + 1))
             continue
-        var path := PCK_DIR + pck_name
+        if pck_vcode <= appVcode:
+            push_warning("更新清单文件中第 %d 个条目版本比打包资源包过低,跳过加载" % (i + 1))
+            continue
+        var path := PCK_RESOURCE_DIR + pck_name
         _set_status("正在加载资源包 (%d/%d): %s" % [i + 1, applied.size(), pck_name])
+        await get_tree().create_timer(1.0).timeout # 休息2秒
         if FileAccess.file_exists(path):
             if not ProjectSettings.load_resource_pack(path, true):
                 push_warning("加载本地资源包失败: %s" % path)

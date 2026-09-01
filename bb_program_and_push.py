@@ -8,11 +8,12 @@ import json
 import subprocess
 import time
 import zipfile
-from datetime import datetime
 from email.utils import formatdate
 from pathlib import Path
 from urllib.parse import quote
+from datetime import datetime, timezone
 import re
+import configparser
 
 import requests
 
@@ -63,22 +64,83 @@ def get_app_version_code(version_name):
         raise ValueError("Invalid version name format")
     return int(parts[0]) * 10000000 + int(parts[1]) * 1000 + int(parts[2])
 
+def get_cmd_version_name():
+    now = datetime.now()
+    major = int(now.year - 2000)*1
+    minor = int(now.month*100 + now.day)*1
+    patch = int(now.hour * 100 + now.minute)*1
+    return f"{major}.{minor}.{patch}"
 
-def update_project_godot(version_name):
+def get_cmd_version_code(version_name):
+    parts = version_name.split(".")
+    if len(parts) != 3:
+        raise ValueError("Invalid version name format")
+    return int(parts[0]) * 100000000 + int(parts[1]) * 10000 + int(parts[2])
+
+def create_export_presets(config_name: str, resource: str):
+    file = PROJECT_ROOT / "export_presets.cfg"
+    content = file.read_text(encoding="utf-8")
+    content = re.sub(
+        rf'{config_name}="([^"]*)"',
+        lambda m: f'{config_name}="{m.group(1) + "," if m.group(1) else ""}{resource}"',
+        content
+    )
+    file.write_text(content, encoding="utf-8")
+
+def remove_export_presets(config_name: str, resource: str):
+    file = PROJECT_ROOT / "export_presets.cfg"
+    content = file.read_text(encoding="utf-8")
+    content = re.sub(
+        rf'{config_name}="([^"]*)"',
+        lambda m: f'{config_name}="{",".join(x for x in m.group(1).split(",") if x != resource)}"',
+        content
+    )
+    file.write_text(content, encoding="utf-8")
+
+def building_setup(pckVersionName):
+    file = PROJECT_ROOT / "configuration.ini"
+
+    now_utc = datetime.now(timezone.utc)
+    now_local = now_utc.astimezone()
+    config = configparser.ConfigParser()
+
+    # 1. 改为普通分组名 "BUILDED"（避开保留字 DEFAULT）
+    config["BUILDED"] = {
+        "build_utc_timestamp": str(int(now_utc.timestamp())),
+        "build_utc_datetime": f'"{now_utc.strftime("%Y-%m-%d %H:%M:%S%z")}"',
+        "build_local_datetime": f'"{now_local.strftime("%Y-%m-%d %H:%M:%S%z")}"',
+        "build_local_timezone": f'"{now_local.tzname()}"',
+    }
+
+    # 2. 包版本分组
+    config["PACKAGE"] = {
+        "build_pck_vname": f'"{pckVersionName}"',
+        "build_pck_vcode": get_cmd_version_code(pckVersionName),
+    }
+
+    # 3. 写入文件（显式指定 newline="\n" 保证跨平台统一换行符）
+    with open(file, "w", encoding="utf-8", newline="\n") as f:
+        config.write(f)
+    return
+
+
+
+def update_project_godot(versionName):
     file = PROJECT_ROOT / "project.godot"
     content = file.read_text(encoding="utf-8")
     if re.search(r'config/version=".*?"', content):
-        content = re.sub(r'config/version=".*?"', f'config/version="{version_name}"', content)
+        content = re.sub(r'config/version=".*?"', f'config/version="{versionName}"', content)
     else:
-        content += ("\n[application]\n"f'config/version="{version_name}"\n')
+        content += ("\n[application]\n"f'config/version="{versionName}"\n')
     file.write_text(content, encoding="utf-8")
 
 
-def update_export_presets(version_name, version_code):
+def update_export_presets(versionName):
+    versionCode = get_app_version_code(versionName)
     file = PROJECT_ROOT / "export_presets.cfg"
     content = file.read_text(encoding="utf-8")
-    content = re.sub(r'version/code=\d+', f'version/code={version_code}', content)
-    content = re.sub(r'version/name=".*?"', f'version/name="{version_name}"', content)
+    content = re.sub(r'version/name=".*?"', f'version/name="{versionName}"', content)
+    content = re.sub(r'version/code=\d+', f'version/code={versionCode}', content)
     file.write_text(content, encoding="utf-8")
 
 
@@ -144,22 +206,22 @@ def upload_to_oss(localFile, objectName, contentType="application/zip"):
     else:
         raise RuntimeError(f"OSS Upload failed [{resp.status_code}]: {resp.text}")
 
-def check_submit_allow(versionName, sha256:str=None) -> bool:
+def check_submit_allow(appVersionName, sha256:str=None) -> bool:
     payload = {
         "project_tag": PROJECT_TAG,
         "device_type": DEVICE_TYPE,
-        "version_name": versionName,
+        "version_name": appVersionName,
         "hash": sha256,
     }
     return httppost("/zzmdt/builded/allowapp",payload)
 
-def create_version_record(versionName, zipInfo, distInfo):
+def create_version_record(appVersionName, zipInfo, distInfo):
     payload = {
-        "title": f"Godot Auto Build {versionName}",
+        "title": f"Godot Auto Build {appVersionName}",
         "intro": "",
         "project_tag": PROJECT_TAG,
         "device_type": DEVICE_TYPE,
-        "version_name": versionName,
+        "version_name": appVersionName,
 
         "zip_url": zipInfo["url"],
         "zip_name": zipInfo["name"],
@@ -211,36 +273,46 @@ if __name__ == "__main__":
     print(f"PROJECT_ROOT: {PROJECT_ROOT}")
     print(f"OUTPUT_PATH: {OUTPUT_PATH}")
 
-    versionName = get_app_version_name()
-    versionCode = get_app_version_code(versionName)
+    appVersionName = get_app_version_name()
+    appVersionCode = get_app_version_code(appVersionName)
+    pckVersionName = get_cmd_version_name()
+    pckVersionCode = get_cmd_version_code(pckVersionName)
 
-    # versionName = get_app_version_name()
-    # print(f"Version Name: {versionName}, Version Code: {get_app_version_code(versionName)}")
+    # x. 更新 program_config.json
+    building_setup(pckVersionName)
+
+    # appVersionName = get_app_version_name()
+    # print(f"Version Name: {appVersionName}, Version Code: {get_app_version_code(appVersionName)}")
     # print(60//6)
     OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
 
     # 检查服务器是否允许当前project_tag-device_type-version_name的版本上报
     # 这里可以添加一个请求到服务器的检查逻辑，如果不允许，则直接退出
-    code, data, msg, rid = check_submit_allow(versionName)
+    code, data, msg, rid = check_submit_allow(appVersionName)
     if code != 200:
-        print(f"Version {versionName} notAllow:" + msg)
+        print(f"Version {appVersionName} notAllow:" + msg)
         sys.exit(1)
 
     # 1. 更新 project.godot 和 export_presets.cfg
-    update_project_godot(versionName)
+    update_project_godot(appVersionName)
     # 2. 更新 export_presets.cfg 中的 version/name 和 version/code
-    update_export_presets(versionName, versionCode)
+    update_export_presets(appVersionName)
 
 
     # 1. Godot 导出 APK
-    distName = f"{PROJECT_ALIAS}-{versionName}.apk"
+    distName = f"{PROJECT_ALIAS}-{appVersionName}.apk"
     distPath = OUTPUT_PATH / distName
     print(f"Exporting Godot APK to: {distPath}")
-    build_godot_app("AndroidHello", distPath)
+    create_export_presets("include_filter", "configuration.ini")
+    try:
+        build_godot_app("AndroidHello", distPath)
+    finally:
+        remove_export_presets("include_filter", "configuration.ini")
+        
     print(f"✔ Godot APK Exported: {distPath}, Size: {distPath.stat().st_size / (1024 * 1024):.2f} Mb")
 
     # 2. 压缩成 ZIP
-    zipName = f"{PROJECT_ALIAS}-{versionName}.zip"
+    zipName = f"{PROJECT_ALIAS}-{appVersionName}.zip"
     zipPath = OUTPUT_PATH / zipName
     zip_file(distPath, zipPath)
 
@@ -250,7 +322,7 @@ if __name__ == "__main__":
     zipSize = zipPath.stat().st_size
     distSize = distPath.stat().st_size
     print(f"Checking version allow for hash: {sha256}")
-    code, data, msg, rid = check_submit_allow(versionName, sha256)
+    code, data, msg, rid = check_submit_allow(appVersionName, sha256)
     if code != 200:
         print(f"responseError:" + msg)
         sys.exit(1)
@@ -269,14 +341,15 @@ if __name__ == "__main__":
         print(f"APK Download URL: {downloadDistUrl}")
 
     print("\n" + "=" * 60)
-    print(f"Version  : {versionName} (Code: {versionCode})")
-    print(f"ZIP      : {zipName}")
-    print(f"ZIP URL  : {downloadZipUrl}")
-    print(f"SHA256   : {sha256}")
+    print(f"APP Version      : {appVersionName} (Code: {appVersionCode})")
+    print(f"APP ZIP          : {zipName}")
+    print(f"APP ZIP URL      : {downloadZipUrl}")
+    print(f"APP SHA256       : {sha256}")
+    print(f"PCK Version      : {pckVersionName} (Code: {pckVersionCode})")
     print("=" * 60)
 
     # 5. 上报版本服务记录
-    code, data, msg, rid = create_version_record(versionName, zipInfo={
+    code, data, msg, rid = create_version_record(appVersionName, zipInfo={
         "url": downloadZipUrl,
         "name":zipName,
         "sha256":sha256,

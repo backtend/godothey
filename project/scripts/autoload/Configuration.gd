@@ -1,45 +1,63 @@
 extends Node
 
-const CONFIG_PATH := "user://configuration.ini"
+const RES_CONFIG_PATH := "res://configuration.ini"
+const USER_CONFIG_PATH := "user://configuration.ini"
 
-var _config := ConfigFile.new()
+var _res_config := ConfigFile.new()
+var _user_config := ConfigFile.new()
 
 
 func _ready() -> void:
-    _load_or_init_config()
+    print("Configuration.gd _ready() called.")
+    _load_or_init_res_config()
+    _load_or_init_user_config()
 
 
-func _load_or_init_config() -> void:
-    var err := _config.load(CONFIG_PATH)
+func _load_or_init_res_config() -> void:
+    var err := _res_config.load(RES_CONFIG_PATH)
+    if err != OK:
+        push_warning("无法加载 RES_CONFIG_PATH 文件: %s (err=%d)" % [RES_CONFIG_PATH, err])
+    # --- 排查专用：打印 INI 文件里实际解析到的所有 Section 和 Key ---
+    # print("================ INI 实际解析内容 ================")
+    # print("解析到的所有 Section: ", _res_config.get_sections())
+    # for sec in _res_config.get_sections():
+    #     print("Section [%s] 包含的 Keys: %s" % [sec, _res_config.get_section_keys(sec)])
+    #     for k in _res_config.get_section_keys(sec):
+    #         print("  -> %s = %s" % [k, _res_config.get_value(sec, k)])
+    # print("==================================================")
 
+
+func _load_or_init_user_config() -> void:
+    var err := _user_config.load(USER_CONFIG_PATH)
     if err != OK:
         # 第一次运行，创建默认配置
-        _config.set_value("APP", "app_version_name", "0.0.0")
-        _config.set_value("APP", "app_version_code", 0)
-        _config.set_value("APP", "pck_version_name", "0.0.0")
-        _config.set_value("APP", "pck_version_code", 0)
-        _config.set_value("APP", "client_uuid", _generate_uuid())
+        _user_config.set_value("APP", "app_version_name", "0.0.0")
+        _user_config.set_value("APP", "app_version_code", 0)
+        _user_config.set_value("APP", "last_pck_vname", "0.0.0")
+        _user_config.set_value("APP", "last_pck_vcode", 0)
+        _user_config.set_value("APP", "client_uuid", _generate_uuid())
 
-        _config.set_value("USER", "language", "zh_CN")
-
-
-        _config.save(CONFIG_PATH)
+        _user_config.set_value("USER", "language", "zh_CN")
+        _user_config.save(USER_CONFIG_PATH)
         return
 
     # 老版本没有 clientuuid 的情况下补上
-    var clientuuid: String = _config.get_value("APP", "client_uuid", "")
+    var clientuuid: String = _user_config.get_value("APP", "client_uuid", "")
     if clientuuid.is_empty():
-        _config.set_value("APP", "client_uuid", _generate_uuid())
-        _config.save(CONFIG_PATH)
+        _user_config.set_value("APP", "client_uuid", _generate_uuid())
+        _user_config.save(USER_CONFIG_PATH)
+
+func getResValue(section: String, key: String, default = null) -> Variant:
+    return _res_config.get_value(section, key, default)
 
 
-func get_val(section: String, key: String, default = null) -> Variant:
-    return _config.get_value(section, key, default)
+func getUserValue(section: String, key: String, default = null) -> Variant:
+    return _user_config.get_value(section, key, default)
 
 
-func set_val(section: String, key: String, value: Variant) -> void:
-    _config.set_value(section, key, value)
-    _config.save(CONFIG_PATH)
+func setUserValue(section: String, key: String, value: Variant) -> void:
+    _user_config.set_value(section, key, value)
+    _user_config.save(USER_CONFIG_PATH)
 
 
 func _generate_uuid() -> String:

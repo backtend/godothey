@@ -16,7 +16,7 @@ func _ready() -> void:
         "project_tag": "godothey",
         "device_type": "android",
         "version_name": appVersion,
-        "client_uuid": str(Configuration.get_val("APP", "client_uuid")),
+        "client_uuid": str(Configuration.getUserValue("APP", "client_uuid")),
         "gray_target": "x123123"
     })
     var _code: int = res[0]; var _msg: String = res[1]; var _data: Dictionary = res[2]
