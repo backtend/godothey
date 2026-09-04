@@ -18,6 +18,7 @@ func _ready() -> void:
     if version_label:
         version_label.text = "App-%s " % [appVersionName]
         version_label.text += "Res-%s " % [Configuration.getResValue("PACKAGE", "build_pck_vname", "0.0.0")]
+        version_label.text += "PCK-%s " % [Configuration.getUserValue("APP", "last_pck_vname", "0.0.0")]
     
     print("APP UUID==:", Configuration.getUserValue("APP", "client_uuid"))
     print("APP Version Name=", appVersionName)

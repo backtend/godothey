@@ -42,12 +42,13 @@ func _ready() -> void:
         await _apply_local_pcks()
     else:
         _set_status("正在加载本地热更新 PCK...")
+        await _apply_local_pcks()
 
     print("获取到的RES构建时间: ", Configuration.getResValue("BUILDED", "build_utc_timestamp", -1))
     print("获取到的RES资源版本号: ", Configuration.getResValue("PACKAGE", "build_pck_vcode", -1))
     
     print("本地热更新 PCK 加载完成,即将进入游戏...")
-    await get_tree().create_timer(EnvedLib.editor(0.3, 3.0)).timeout # 休息x秒
+    await get_tree().create_timer(EnvedLib.editor(1.1, 3.3)).timeout # 休息x秒
     await _goto_target_scene()
 
 
@@ -88,26 +89,36 @@ func _apply_local_pcks() -> void:
         push_warning("更新清单文件格式错误,无法加载本地资源包")
         return
 
-    var appVcode = Configuration.getResValue("PACKAGE", "build_pck_vcode")
+    var appPckVcode = Configuration.getResValue("PACKAGE", "build_pck_vcode")
     var applied: Array = parsed.get("applied", [])
     for i in range(applied.size()):
         var entry = applied[i]
-        var pck_name: String = entry.get("pck_name", "")
         var pck_vcode: int = entry.get("pck_vcode", 0)
-        if pck_name == "" or pck_vcode <= 0:
+        var pck_vname: String = entry.get("pck_vname", "0.0.0")
+        var pck_filename: String = pck_vname + ".pck"
+        if pck_filename == "0.0.0.pck" or pck_vcode <= 0:
             push_warning("更新清单文件中第 %d 个条目格式错误,无法加载本地资源包" % (i + 1))
             continue
-        if pck_vcode <= appVcode:
+        if pck_vcode <= appPckVcode:
             push_warning("更新清单文件中第 %d 个条目版本比打包资源包过低,跳过加载" % (i + 1))
             continue
-        var path := PCK_RESOURCE_DIR + pck_name
-        _set_status("正在加载资源包 (%d/%d): %s" % [i + 1, applied.size(), pck_name])
+        if pck_vcode <= int(Configuration.getUserValue("APP", "last_pck_vcode", 0)):
+            push_warning("更新清单文件中第 %d 个条目版本比上次成功加载的资源包过低,跳过加载" % (i + 1))
+            continue
+        var path := PCK_RESOURCE_DIR + pck_filename
+        _set_status("正在加载资源包 (%d/%d): %s" % [i + 1, applied.size(), pck_filename])
         await get_tree().create_timer(1.0).timeout # 休息2秒
-        if FileAccess.file_exists(path):
-            if not ProjectSettings.load_resource_pack(path, true):
-                push_warning("加载本地资源包失败: %s" % path)
-        else:
-            push_warning("本地资源包缺失,可能需要重新下载: %s" % path)
+        if not FileAccess.file_exists(path):
+            push_warning("本地资源包缺失: %s" % path)
+            _set_status("本地资源包缺失: %s" % path)
+            return
+        if not ProjectSettings.load_resource_pack(path, true):
+            push_warning("加载本地资源包失败: %s" % path)
+            _set_status("加载本地资源包失败: %s" % path)
+            return
+        Configuration.setUserValue("APP", "last_pck_vname", pck_vname)
+        Configuration.setUserValue("APP", "last_pck_vcode", pck_vcode)
+    
     _set_status("资源加载完成")
 
 
