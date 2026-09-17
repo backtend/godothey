@@ -39,7 +39,7 @@ func _ready() -> void:
     await get_tree().process_frame
     if EnvedLib.editor():
         _set_status("编辑器调试：跳过本地热更新 PCK")
-        await _apply_local_pcks()
+        # await _apply_local_pcks()
     else:
         _set_status("正在加载本地热更新 PCK...")
         await _apply_local_pcks()
