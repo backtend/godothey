@@ -251,7 +251,7 @@ def httppost(path, data, headers=None):
     }
 
     url = SERVER_BASE_URL + path
-    headers = headers.update(headerNew) if headers else headerNew
+    headers = {**(headers or {}), **headerNew}
     resp = requests.post(url, json=data, headers=headers, timeout=20)
     if resp.status_code != 200:
         return resp.status_code, {}, resp.text, resp.headers.get("X-Request-ID", "")
@@ -361,5 +361,8 @@ if __name__ == "__main__":
         "size":distSize,
     })
     print(f"Create Version Record: code={code}, data={data}, msg={msg}, rid={rid}")
+    if code != 200:
+        print(f"responseError:" + msg)
+        sys.exit(1)
 
     print(f"Total Elapsed: {time.time() - startTimestamp:.2f}s")

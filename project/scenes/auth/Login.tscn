@@ -36,12 +36,12 @@ theme_override_constants/separation = 16
 
 [node name="Title" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1254164737]
 layout_mode = 2
-text = "Welcome"
+text = "欢迎来到青禾物语"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=2023665958]
 layout_mode = 2
-text = "Sign in to continue"
+text = "登录账号，或以游客身份进入游戏"
 horizontal_alignment = 1
 
 [node name="Spacer1" type="Control" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=172061758]
@@ -67,7 +67,7 @@ horizontal_alignment = 1
 [node name="LoginButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1208487210]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-text = "Login"
+text = "登录"
 
 [node name="Separator" type="HSeparator" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1570816303]
 layout_mode = 2
@@ -75,7 +75,7 @@ layout_mode = 2
 [node name="GuestButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=172924566]
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-text = "Continue as Guest"
+text = "以游客身份进入游戏"
 
 [node name="BottomSpace" type="Control" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=676834414]
 custom_minimum_size = Vector2(0, 8)

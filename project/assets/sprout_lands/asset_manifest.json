@@ -1,0 +1,222 @@
+[
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/.DS_Store",
+    "path": "project/assets/sprout_lands/ds_store",
+    "sha256": "752e2dbd548d610e3d478078c0d31d298a07e2eb74c32726a560d3121a69d51d"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Characters/Basic Charakter Actions.png",
+    "path": "project/assets/sprout_lands/characters/basic_character_actions.png",
+    "sha256": "e45f232417313cb8b06609a595d41fb42aaf2847ed3e020b00fc8cd519e0dba7"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Characters/Basic Charakter Spritesheet.png",
+    "path": "project/assets/sprout_lands/characters/basic_character_spritesheet.png",
+    "sha256": "f45a7c06bd6df451832b4ab793c0a204e2832335037636decc6966bbf9b69b76"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Characters/Egg_And_Nest.png",
+    "path": "project/assets/sprout_lands/characters/egg_and_nest.png",
+    "sha256": "beb96e1c229bfdfb47131963efe9cebe5ecdef0ec1dea2668d42d15df0e67e36"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Characters/Free Chicken Sprites.png",
+    "path": "project/assets/sprout_lands/characters/free_chicken_sprites.png",
+    "sha256": "adeae792329df996e903cffc29264eded594725e11c0ffe779e31897d2844aa5"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Characters/Free Cow Sprites.png",
+    "path": "project/assets/sprout_lands/characters/free_cow_sprites.png",
+    "sha256": "6c6b12f26e52afaa3c1e6a0b3172c782ca1c3cc9958c6be365156d00525a604d"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Characters/Tools.png",
+    "path": "project/assets/sprout_lands/characters/tools.png",
+    "sha256": "569fe7f44c60accfbd47d8a6a22bfce8ac8c9574c0dd60418ebb39bad7987756"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Basic Furniture.png",
+    "path": "project/assets/sprout_lands/objects/basic_furniture.png",
+    "sha256": "e41db496598994f1f55019d626256deb3a2419daed5ddc8fbf60f556b02d2e7a"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Basic Grass Biom things 1.png",
+    "path": "project/assets/sprout_lands/objects/basic_grass_biome_things_1.png",
+    "sha256": "22938e24b511139f5552795429250fbdbbaeb6f5e849cab91bc83ac0a1f12586"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Basic Plants.png",
+    "path": "project/assets/sprout_lands/objects/basic_plants.png",
+    "sha256": "8d4d01cddfe409afc92800c8c6ce7bf8b10b3ed82e3ebe76f841931f773806fc"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Basic tools and meterials.png",
+    "path": "project/assets/sprout_lands/objects/basic_tools_and_materials.png",
+    "sha256": "efb8ba38abb0e999fc54cbfc3d202dd2c0385c98b9bdaec41487317f789bbbd8"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Basic_Furniture.png",
+    "path": "project/assets/sprout_lands/objects/basic_furniture_variant_2.png",
+    "sha256": "e41db496598994f1f55019d626256deb3a2419daed5ddc8fbf60f556b02d2e7a"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Basic_Grass_Biom_things.png",
+    "path": "project/assets/sprout_lands/objects/basic_grass_biome_things.png",
+    "sha256": "22938e24b511139f5552795429250fbdbbaeb6f5e849cab91bc83ac0a1f12586"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Basic_Plants.png",
+    "path": "project/assets/sprout_lands/objects/basic_plants_variant_2.png",
+    "sha256": "8d4d01cddfe409afc92800c8c6ce7bf8b10b3ed82e3ebe76f841931f773806fc"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Basic_tools_and_meterials.png",
+    "path": "project/assets/sprout_lands/objects/basic_tools_and_materials_variant_2.png",
+    "sha256": "efb8ba38abb0e999fc54cbfc3d202dd2c0385c98b9bdaec41487317f789bbbd8"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Chest.png",
+    "path": "project/assets/sprout_lands/objects/chest.png",
+    "sha256": "9302a794b760634a27aea1aab2ed1a9c47098e5c31e1481345cd9891ae6edbdf"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Egg item.png",
+    "path": "project/assets/sprout_lands/objects/egg_item.png",
+    "sha256": "e71f6f910fbe67db96ab5f192b2131650b8eede89c9f0847c720490e5a968346"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Egg_item.png",
+    "path": "project/assets/sprout_lands/objects/egg_item_variant_2.png",
+    "sha256": "e71f6f910fbe67db96ab5f192b2131650b8eede89c9f0847c720490e5a968346"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Free_Chicken_House.png",
+    "path": "project/assets/sprout_lands/objects/free_chicken_house.png",
+    "sha256": "4f3b63af9e228d88916c452dc5401d77f321b98c523f274a3e388654d87d82d3"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Paths.png",
+    "path": "project/assets/sprout_lands/objects/paths.png",
+    "sha256": "b58d1330c3fb9334d5524ed108f9f068fa2c350dd54501ff59350ac4d471124a"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Simple Milk and grass item.png",
+    "path": "project/assets/sprout_lands/objects/simple_milk_and_grass_item.png",
+    "sha256": "0d84a6f984a199a4d5a4abd30d34450551ced0472224ec4be13310f38dc424b3"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Simple_Milk_and_grass_item.png",
+    "path": "project/assets/sprout_lands/objects/simple_milk_and_grass_item_variant_2.png",
+    "sha256": "0d84a6f984a199a4d5a4abd30d34450551ced0472224ec4be13310f38dc424b3"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Wood Bridge.png",
+    "path": "project/assets/sprout_lands/objects/wood_bridge.png",
+    "sha256": "155a91eddb204f8e930158d1428528eb06cc17be9138fcc33b70fa5b83346d12"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Objects/Wood_Bridge.png",
+    "path": "project/assets/sprout_lands/objects/wood_bridge_variant_2.png",
+    "sha256": "155a91eddb204f8e930158d1428528eb06cc17be9138fcc33b70fa5b83346d12"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Sprout Lands color pallet/Sprout Lands defautlt palette snip.PNG",
+    "path": "project/assets/sprout_lands/palette/sprout_lands_default_palette_snip.png",
+    "sha256": "26812a0a62402c98f6796c1df90a5768f404f71df21ea50605cbf9cafdff93d1"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Sprout Lands color pallet/Sprout Lands defautlt palette.aseprite",
+    "path": "project/assets/sprout_lands/palette/sprout_lands_default_palette.aseprite",
+    "sha256": "1b6b394beb7d9f5487dbd8613b1840f86ca5f998ef6607c56ae4c34c4e3b063d"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Sprout Lands color pallet/Sprout Lands defautlt palette.png",
+    "path": "project/assets/sprout_lands/palette/sprout_lands_default_palette.png",
+    "sha256": "f299ebfb5f4a1bbf9cbb3f94cf55e9c1736c0fccc6dd354947fc3a48f9ecd883"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Bitmask references 1.png",
+    "path": "project/assets/sprout_lands/tilesets/bitmask_references_1.png",
+    "sha256": "e1df51c9ee03b538988ac9cf93f80b6dfdc88c10afdda061cdc0058192b0cfad"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Bitmask references 2.png",
+    "path": "project/assets/sprout_lands/tilesets/bitmask_references_2.png",
+    "sha256": "14b542cb3453d3691a5e0499a1f5666170a6f1b4d1c23e13f374504432dcae05"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Bitmask references gif.gif",
+    "path": "project/assets/sprout_lands/tilesets/bitmask_references_gif.gif",
+    "sha256": "18406a1d1cc61b4fdfb8091e6e36cd23dc51cf49daf7b4bb906c92a62f103ebe"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Doors.png",
+    "path": "project/assets/sprout_lands/tilesets/doors.png",
+    "sha256": "26c28a634f3a439f00fa026f9e24055f359c4d9201c0118529d18b7f087ea34e"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Fences.png",
+    "path": "project/assets/sprout_lands/tilesets/fences.png",
+    "sha256": "211ecb752d2bc8cc434662440d6cd864d58d8ce4720063964cac27e59559c52b"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Grass.png",
+    "path": "project/assets/sprout_lands/tilesets/grass.png",
+    "sha256": "97eedc32f4c33005ab2abb26a034ce1b32428da321e3052082c87d320c0e1cbe"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Hills.png",
+    "path": "project/assets/sprout_lands/tilesets/hills.png",
+    "sha256": "37ee6663235874daa235b290420b75e3de81e15e6459cfedfa225e288ee65d19"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Tilled Dirt.png",
+    "path": "project/assets/sprout_lands/tilesets/tilled_dirt.png",
+    "sha256": "4ac254268b4d2176a19340bd561f8a5cbb544ad13953ba2cd877812840266b52"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Tilled_Dirt.png",
+    "path": "project/assets/sprout_lands/tilesets/tilled_dirt_variant_2.png",
+    "sha256": "79cf68c26bd9d2b3c247dbbe3e14ab612885cfc94c7d417c2faed287b4447e43"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Tilled_Dirt_Wide.png",
+    "path": "project/assets/sprout_lands/tilesets/tilled_dirt_wide.png",
+    "sha256": "8bf6c8b9f6f7ef58e42c823a26ed11abd84e04a6daaf0e5af8c89b42d0c0f3b5"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Tilled_Dirt_Wide_v2.png",
+    "path": "project/assets/sprout_lands/tilesets/tilled_dirt_wide_v2.png",
+    "sha256": "b4e8ef68a1038c6f1fbe1b30d85f1065b563718bff1e697fd28bc94b7f0906e2"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Tilled_Dirt_v2.png",
+    "path": "project/assets/sprout_lands/tilesets/tilled_dirt_v2.png",
+    "sha256": "f62386806fa3d93f6b910c810e97c0c3e8736212c3b184fbf237f7d3802773d1"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Water.png",
+    "path": "project/assets/sprout_lands/tilesets/water.png",
+    "sha256": "02ce64243bb17f62fff0bd44abf661ab5efb8dd6a85fd7e304e73e2fd3188f95"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Wooden House.png",
+    "path": "project/assets/sprout_lands/tilesets/wooden_house.png",
+    "sha256": "d146e9a5d2cc2a6c78bfa9a96f68f43eaa71a3081bac927b908f3e1c33ad9d0f"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Wooden_House_Roof_Tilset.png",
+    "path": "project/assets/sprout_lands/tilesets/wooden_house_roof_tileset.png",
+    "sha256": "1f283a1bf502870c5e8506cbb9affd4c3acb99e61776d70124024144c92ccf03"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/Tilesets/Wooden_House_Walls_Tilset.png",
+    "path": "project/assets/sprout_lands/tilesets/wooden_house_walls_tileset.png",
+    "sha256": "22f19ef774f98018fc6e0f404921a3d06139db256f99625e53da2e510df3c206"
+  },
+  {
+    "original": "project/assets/Sprout Lands - Sprites - Basic pack/read_me.txt",
+    "path": "project/assets/sprout_lands/LICENSE.txt",
+    "sha256": "f41c94ec4e417de51cf25cb7b01f44c52c8c16ee4cb223db2de37f3dd0316dff"
+  }
+]

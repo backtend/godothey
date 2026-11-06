@@ -32,7 +32,9 @@ func _on_login_pressed() -> void:
 
 
 func _on_guest_pressed() -> void:
-    get_tree().change_scene_to_file("res://scenes/home/Home.tscn")
+    guest_button.disabled = true
+    login_button.disabled = true
+    get_tree().call_deferred("change_scene_to_file", "res://scenes/home/Home.tscn")
 
 
 func _on_login_success() -> void:

@@ -1,21 +1,5 @@
-[gd_scene format=3 uid="uid://b2e5g0ixxl0fv"]
+[gd_scene load_steps=2 format=3]
 
-[ext_resource type="Texture2D" uid="uid://cvtllpyd13kos" path="res://icon.svg" id="1_ig7tw"]
-[ext_resource type="Script" uid="uid://dkc72wmugfvlb" path="res://scripts/entities/player/Goboy.gd" id="2_0xm2m"]
-[ext_resource type="PackedScene" uid="uid://jhqiqjka0y2i" path="res://scenes/entities/girl/Girl.tscn" id="3_h2yge"]
-[ext_resource type="PackedScene" uid="uid://dum7mxc4e5ct2" path="res://scenes/entities/player/Player.tscn" id="4_1bvp3"]
+[ext_resource type="PackedScene" path="res://scenes/game/Arena.tscn" id="1"]
 
-[node name="Node2D" type="Node2D" unique_id=2054691334]
-
-[node name="gdboy" type="Sprite2D" parent="." unique_id=1070978431]
-position = Vector2(510, 320)
-texture = ExtResource("1_ig7tw")
-script = ExtResource("2_0xm2m")
-
-[node name="girl" parent="." unique_id=780432313 instance=ExtResource("3_h2yge")]
-position = Vector2(99, 100)
-scale = Vector2(1.0889488, 1.0889488)
-
-[node name="player" parent="." unique_id=1037054095 instance=ExtResource("4_1bvp3")]
-position = Vector2(1052, 455)
-scale = Vector2(1.0007147, 1)
+[node name="Home" instance=ExtResource("1")]

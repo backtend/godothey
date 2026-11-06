@@ -11,8 +11,8 @@ config_version=5
 [application]
 
 config/name="GODOTHEY"
-config/version="1.903.96"
-run/main_scene="uid://bootstrap0001"
+config/version="1.1102.117"
+run/main_scene="res://scenes/Bootstrap.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
 boot_splash/bg_color=Color(0.036384057, 0.3841699, 0.59965336, 1)
 boot_splash/show_image=false

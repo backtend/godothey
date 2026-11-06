@@ -32,6 +32,9 @@ func _ready() -> void:
     http_request.use_threads = true
 
     var last_pck_vname: String = Configuration.getUserValue("APP", "last_pck_vname", "")
+    var baseline := int(Configuration.getResValue("PACKAGE", "build_pck_vcode", 0))
+    if baseline > int(Configuration.getUserValue("APP", "last_pck_vcode", 0)):
+        last_pck_vname = str(Configuration.getResValue("PACKAGE", "build_pck_vname", "0.0.0"))
     print("[Update] 上次已应用的资源包版本: %s" % last_pck_vname)
     if last_pck_vname == "0.0.0" or last_pck_vname == "":
         last_pck_vname = Configuration.getResValue("PACKAGE", "build_pck_vname", "0.2.2")
@@ -50,7 +53,7 @@ func _ready() -> void:
 
     if code != 200:
         push_warning("[Update] 检查更新接口失败: code=%d msg=%s" % [code, msg])
-        get_tree().call_deferred("change_scene_to_file", "res://scenes/home/Home.tscn")
+        get_tree().call_deferred("change_scene_to_file", "res://scenes/auth/Login.tscn")
         return
 
     print("[Update] 检查更新接口返回数据: %s" % data)
@@ -132,7 +135,9 @@ func _run_update(packages: Array) -> bool:
         var tag: String = pkg.get("tag", "")
         var pkg_size := int(pkg.get("pck_size", 0))
 
-        if tag != "" and applied_tags.has(tag):
+        var existing_path := PCK_RESOURCE_DIR + str(pkg.get("pck_vname", "")) + ".pck"
+        var expected_hash := str(pkg.get("pck_hash", "")).to_lower()
+        if tag != "" and applied_tags.has(tag) and FileAccess.file_exists(existing_path) and expected_hash != "" and _sha256_hex(existing_path).to_lower() == expected_hash:
             print("[Update] 资源包已应用过,跳过下载: tag=%s vname=%s vcode=%d" % [tag, pkg.get("pck_vname", ""), pkg.get("pck_vcode", 0)])
             bytes_done += pkg_size
             continue
@@ -146,13 +151,21 @@ func _run_update(packages: Array) -> bool:
 
         bytes_done += pkg_size
 
+    _packages = packages
     print("[Update] 所有资源包已下载并应用完毕: %d 个包" % packages.size())
     return true
 
 
 func _download_and_apply(pkg: Dictionary, index: int, total_count: int, bytes_before: int, total_bytes: int) -> bool:
-    var pck_filename: String = pkg.get("pck_vname") + ".pck"
-    var dest_path := PCK_RESOURCE_DIR + pck_filename
+    var version := str(pkg.get("pck_vname", ""))
+    var regex := RegEx.new()
+    regex.compile("^[0-9]+\\.[0-9]+\\.[0-9]+$")
+    if regex.search(version) == null:
+        _fail("资源包版本名称无效")
+        return false
+    var pck_filename := version + ".pck"
+    var final_path := PCK_RESOURCE_DIR + pck_filename
+    var dest_path := final_path + ".part"
     var pkg_size := int(pkg.get("pck_size", 0))
 
     http_request.download_file = dest_path
@@ -200,6 +213,13 @@ func _download_and_apply(pkg: Dictionary, index: int, total_count: int, bytes_be
                 push_warning("[Update] 删除损坏的资源包失败: %s (err=%d)" % [dest_path, del_err])
         return false
 
+    # Only verified complete files may enter the manifest.
+    var move_error := DirAccess.rename_absolute(dest_path, final_path)
+    if move_error != OK:
+        _fail("无法保存资源包：" + error_string(move_error))
+        return false
+    dest_path = final_path
+
     # 挂载到虚拟文件系统,主要用于校验 pck 本身是否有效可加载;
     # 真正让新资源生效依赖下次冷启动时 AutoLoad 重新挂载,这里不做热替换。
     if not ProjectSettings.load_resource_pack(dest_path, true):
@@ -211,8 +231,7 @@ func _download_and_apply(pkg: Dictionary, index: int, total_count: int, bytes_be
     if _is_all_resources_package(pkg):
         _reset_manifest_from_full_package(pkg)
 
-    _record_applied(pkg)
-    return true
+    return _record_applied(pkg)
 
 
 func _poll_progress(bytes_before: int, total_bytes: int, pkg_size: int, stop: Array) -> void:
@@ -236,8 +255,11 @@ func _fail(msg: String) -> void:
 
 
 func _on_all_packages_applied() -> void:
-    Configuration.setUserValue("APP", "last_pck_vname", str(_rsp_data.get("latest_version_name", "0.0.0")))
-    Configuration.setUserValue("APP", "last_pck_vcode", str(_rsp_data.get("latest_version_code", 0)))
+    var applied: Array = _load_manifest().get("applied", [])
+    applied.sort_custom(func(a, b): return int(a.get("pck_vcode", 0)) < int(b.get("pck_vcode", 0)))
+    if not applied.is_empty():
+        Configuration.setUserValue("APP", "last_pck_vname", str(applied[-1].get("pck_vname", "0.0.0")))
+        Configuration.setUserValue("APP", "last_pck_vcode", int(applied[-1].get("pck_vcode", 0)))
     status_label.text = "更新完成,即将重新打开..."
     detail_label.text = ""
     progress_bar.value = 100
@@ -263,19 +285,22 @@ func _hard_restart() -> void:
 
 # ---------------- 本地清单持久化 ----------------
 
-func _record_applied(pkg: Dictionary) -> void:
+func _record_applied(pkg: Dictionary) -> bool:
     var manifest := _load_manifest()
     var applied: Array = manifest.get("applied", [])
+    applied = applied.filter(func(entry): return int(entry.get("pck_vcode", 0)) != int(pkg.get("pck_vcode", 0)))
     applied.append({
         "tag": pkg.get("tag", ""),
         "pck_name": pkg.get("pck_name", ""),
         "pck_mode": pkg.get("pck_mode", ""),
         "pck_vname": pkg.get("pck_vname", 0),
-        "pck_vcode": pkg.get("pck_vcode", 0)
+        "pck_vcode": pkg.get("pck_vcode", 0),
+        "pck_hash": pkg.get("pck_hash", ""),
+        "pck_size": pkg.get("pck_size", 0)
     })
     manifest["applied"] = applied
     manifest["last_pck_vcode"] = pkg.get("pck_vcode", manifest.get("last_pck_vcode", 0))
-    _save_manifest(manifest)
+    return _save_manifest(manifest)
 
 
 func _applied_tags(manifest: Dictionary) -> Array:
@@ -298,18 +323,28 @@ func _load_manifest() -> Dictionary:
     if typeof(parsed) != TYPE_DICTIONARY:
         push_warning("[Update] 更新清单文件格式错误,已忽略: %s" % PCK_MANIFEST_PATH)
         return {"applied": []}
-    if not parsed.has("applied"):
+    if not parsed.get("applied", []) is Array:
         parsed["applied"] = []
+    else:
+        parsed["applied"] = parsed.get("applied", []).filter(func(entry): return entry is Dictionary)
     return parsed
 
 
-func _save_manifest(manifest: Dictionary) -> void:
-    var f := FileAccess.open(PCK_MANIFEST_PATH, FileAccess.WRITE)
+func _save_manifest(manifest: Dictionary) -> bool:
+    DirAccess.make_dir_recursive_absolute(PCK_RESOURCE_DIR)
+    var temporary := PCK_MANIFEST_PATH + ".tmp"
+    var f := FileAccess.open(temporary, FileAccess.WRITE)
     if f == null:
         push_error("[Update] 无法写入更新清单文件: %s (err=%d)" % [PCK_MANIFEST_PATH, FileAccess.get_open_error()])
-        return
+        return false
     f.store_string(JSON.stringify(manifest))
+    f.flush()
     f.close()
+    var error := DirAccess.rename_absolute(temporary, PCK_MANIFEST_PATH)
+    if error != OK:
+        _fail("无法保存更新清单：" + error_string(error))
+        return false
+    return true
 
 
 # ---------------- 工具函数 ----------------
@@ -318,6 +353,8 @@ func _normalize_packages(packages: Array) -> Array:
     if packages.is_empty():
         return []
 
+    packages = packages.filter(func(pkg): return pkg is Dictionary)
+    packages.sort_custom(func(a, b): return int(a.get("pck_vcode", 0)) < int(b.get("pck_vcode", 0)))
     var last_all_resources_index := -1
     for i in packages.size():
         var pkg: Dictionary = packages[i]
@@ -373,9 +410,11 @@ func _reset_manifest_from_full_package(full_pkg: Dictionary) -> void:
 
 
 func _delete_local_package(entry: Dictionary) -> void:
-    var pck_filename := str(entry.get("pck_vname") + ".pck").strip_edges()
-    if pck_filename == "":
-        return
+    var version := str(entry.get("pck_vname", ""))
+    var regex := RegEx.new()
+    regex.compile("^[0-9]+\\.[0-9]+\\.[0-9]+$")
+    if regex.search(version) == null: return
+    var pck_filename := version + ".pck"
 
     var path := PCK_RESOURCE_DIR + pck_filename
     if not FileAccess.file_exists(path):
@@ -410,3 +449,7 @@ func _format_bytes(bytes: int) -> String:
         return "%.1fKB" % (float(bytes) / 1024.0)
     else:
         return "%dB" % bytes
+
+func _exit_tree() -> void:
+    if get_tree().root.has_meta("_block_back"):
+        get_tree().root.remove_meta("_block_back")

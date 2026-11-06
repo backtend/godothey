@@ -227,7 +227,7 @@ def httppost(path, data, headers=None):
     }
 
     url = SERVER_BASE_URL + path
-    headers = headers.update(headerNew) if headers else headerNew
+    headers = {**(headers or {}), **headerNew}
     resp = requests.post(url, json=data, headers=headers, timeout=20)
     if resp.status_code != 200:
         return resp.status_code, {}, resp.text, resp.headers.get("X-Request-ID", "")

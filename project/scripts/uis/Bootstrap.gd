@@ -74,6 +74,9 @@ func _set_status(text: String) -> void:
 
 
 func _apply_local_pcks() -> void:
+    var appPckVcode := int(Configuration.getResValue("PACKAGE", "build_pck_vcode", 0))
+    Configuration.setUserValue("APP", "last_pck_vcode", appPckVcode)
+    Configuration.setUserValue("APP", "last_pck_vname", str(Configuration.getResValue("PACKAGE", "build_pck_vname", "0.0.0")))
     _set_status("正在检查本地资源包...")
     if not FileAccess.file_exists(PCK_MANIFEST_PATH):
         push_warning("更新清单文件不存在,无法加载本地资源包")
@@ -89,8 +92,13 @@ func _apply_local_pcks() -> void:
         push_warning("更新清单文件格式错误,无法加载本地资源包")
         return
 
-    var appPckVcode = Configuration.getResValue("PACKAGE", "build_pck_vcode")
-    var applied: Array = parsed.get("applied", [])
+    if not parsed.get("applied", []) is Array:
+        push_warning("资源清单的 applied 必须为数组")
+        return
+    var applied: Array = parsed.get("applied", []).filter(func(entry): return entry is Dictionary)
+    applied.sort_custom(func(a, b): return int(a.get("pck_vcode", 0)) < int(b.get("pck_vcode", 0)))
+    # Resource packs are process-local mounts: EVERY cold start must mount them again.
+    # last_pck_vcode reports the effective version, not a reason to skip mounting.
     for i in range(applied.size()):
         var entry = applied[i]
         var pck_vcode: int = entry.get("pck_vcode", 0)
@@ -102,15 +110,19 @@ func _apply_local_pcks() -> void:
         if pck_vcode <= appPckVcode:
             push_warning("更新清单文件中第 %d 个条目版本比打包资源包过低,跳过加载" % (i + 1))
             continue
-        if pck_vcode <= int(Configuration.getUserValue("APP", "last_pck_vcode", 0)):
-            push_warning("更新清单文件中第 %d 个条目版本比上次成功加载的资源包过低,跳过加载" % (i + 1))
-            continue
+        if not _valid_version(pck_vname):
+            push_warning("资源版本名称无效")
+            return
         var path := PCK_RESOURCE_DIR + pck_filename
         _set_status("正在加载资源包 (%d/%d): %s" % [i + 1, applied.size(), pck_filename])
         await get_tree().create_timer(1.0).timeout # 休息2秒
         if not FileAccess.file_exists(path):
             push_warning("本地资源包缺失: %s" % path)
             _set_status("本地资源包缺失: %s" % path)
+            return
+        var expected_hash := str(entry.get("pck_hash", ""))
+        if expected_hash != "" and FileAccess.get_sha256(path).to_lower() != expected_hash.to_lower():
+            _set_status("资源包校验失败，将重新检查更新")
             return
         if not ProjectSettings.load_resource_pack(path, true):
             push_warning("加载本地资源包失败: %s" % path)
@@ -129,3 +141,8 @@ func _goto_target_scene() -> void:
     if err != OK:
         push_error("跳转入口场景失败: %s (err=%d)" % [target_scene, err])
         _set_status("启动失败,请重启游戏")
+
+func _valid_version(value: String) -> bool:
+    var regex := RegEx.new()
+    regex.compile("^[0-9]+\\.[0-9]+\\.[0-9]+$")
+    return regex.search(value) != null

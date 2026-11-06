@@ -16,3 +16,6 @@ Thumbs.db
 
 
 android/build
+# Python release checks
+__pycache__/
+*.py[cod]

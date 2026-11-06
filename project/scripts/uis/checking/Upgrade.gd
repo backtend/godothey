@@ -25,7 +25,7 @@ func _ready() -> void:
     if _code != 200:
         push_warning(_msg)
         print("升级检查请求发起失败，即将前往首页: %s" % _msg)
-        get_tree().call_deferred("change_scene_to_file", "res://scenes/home/Home.tscn")
+        get_tree().call_deferred("change_scene_to_file", "res://scenes/auth/Login.tscn")
         return
 
     _upgrade_mode = int(_data.get("upgrade_mode", 0))
@@ -68,3 +68,6 @@ func _on_confirm_pressed() -> void:
         status_label.text = "已跳转到浏览器，请下载并安装新版本"
     else:
         status_label.text = "打开下载地址失败，请检查网络或稍后重试"
+func _exit_tree() -> void:
+    if get_tree().root.has_meta("_block_back"):
+        get_tree().root.remove_meta("_block_back")
